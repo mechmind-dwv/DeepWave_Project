@@ -5,6 +5,7 @@ Script de ejecución principal para DeepWave en Termux
 
 import sys
 import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Añadir ruta de usuario de Termux a sys.path
 termux_path = "/data/data/com.termux/files/home/.local/lib/python3.11/site-packages"
