@@ -1,17 +1,21 @@
-# Python
+# Termux
 __pycache__/
 *.py[cod]
-*.class
+*$py.class
 *.so
 .Python
-venv_deepwave/
-env/
+venv/
 
-# Datos y modelos
+# Datos
 data/raw/
 models/*.h5
 *.npy
 *.npz
+
+# Logs y temporales
+*.log
+*.tmp
+*.temp
 
 # IDE
 .vscode/
