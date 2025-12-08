@@ -1,0 +1,68 @@
+�
+
+cS/i���
+�dZddlZdd�Zdd�Zdd�Zedk(r�ed�ed�e�\ZZ	eee	�Z
+ed	�ed
+ee��d��ede
+j���eje
+dd
+�dd�f�Zeded�d��e�\ZZ	eee	�Zed�ed
+ee��d��edej���ej"e�Zeded�d��ed�ed�yy)u�
+MÓDULO DEEPWAVE PRE-PROCESAMIENTO - Generación de Espectrogramas
+Autores: Benjamin Cabeza Duran / Gemini IA
+Fecha: Octubre 2025
+�Nc�x�tjd|t||z�d��}d}|||z
+||zdzzz}d||zzdz}dtjztj|�z|z}|tj
+|�z}|dtjj|j�	�zz
+}||fS)
+u,Simula una señal de 'chirp' de Fusión BBH.rF��endpoint��g�?皙�����?皙�����?��size)	�np�linspace�int�pi�cumsum�sin�random�normal�shape)	�
+duracion_s�frecuencia_max�
+tasa_muestreo�tiempo�frecuencia_inicial�frecuencia_inst�amplitud�fase�senals	         �Y/data/data/com.termux/files/home/DeepWave_Project/codigo_fuente/deepwave_preprocessing.py�generar_senal_bbhrs���
+�[�[��J��M�J�,F�(G�RW�
+X�F���(�N�=O�,O�TZ�]g�Tg�jk�Sk�+k�k�O��f�z�)�*�S�0�H��r�u�u�9�r�y�y��1�1�M�A�D��r�v�v�d�|�#�E�	�T�B�I�I�$�$�%�+�+�$�6�
+6�6�E��-���c	�J�tjd|t||z�d��}dtjj	|j
+��z}t|dz�}t|dz�}|||xxxdtjj	||z
+��zz
+ccc||fS)	z<Simula un 'glitch' (ruido impulsivo breve y de banda ancha).rFrrr
+g�������?g�������?g@)rr
+rrrr)rrrr�inicio_pulso�	fin_pulsos      r�generar_senal_glitchr$s���
+�[�[��J��M�J�,F�(G�RW�
+X�F��"�)�)�"�"����"�5�5�E��}�s�*�+�L��M�D�(�)�I�	�,�y�!�S�2�9�9�+;�+;��<�AW�+;�+X�%X�X�!��-��r c��t||z�}t||z�}||z
+}tt|�|z
+|z�dz}|dzdz}tj||f�}	t	|�D]Q}
+|
+|z}||z}|||}
+tj
+j
+|
+�}tj|�dz}||	dd�|
+f<�Sdtj|	dz�z}|S)u{
+    Simula el cálculo de un Espectrograma (STFT) con NumPy.
+    Transforma el dominio de tiempo a tiempo-frecuencia.
+    �rN�
+g�����|�=)	r�lenr�zeros�range�fft�rfft�abs�log10)rr�	ventana_s�solapamiento_s�puntos_ventana�puntos_solapamiento�paso�
+n_ventanas�n_freq�espectrograma_matriz�i�inicio�fin�
+ventana_datos�
+fft_resultado�energia�espectrograma_logs                 r�calcular_espectrograma_stubr>,s������2�3�N��m�n�<�=���/�/�D��c�%�j�>�1�T�9�:�Q�>�J��q�
+ �1�
+$�F��8�8�V�Z�$8�9��
+�:�
+���T����~�%���f�S�)�
+������M�2�
+��&�&��'��*��&-��Q��T�"���R�X�X�&:�U�&B�C�C���r �__main__u=🧠 DEEPWAVE: Verificación del Módulo de Pre-Procesamientoz5=====================================================u 
+[BBH - Onda Gravitacional 🌌]u Longitud de la señal temporal: z puntos.z0Dimensiones del Espectrograma (Frec. x Tiempo): r'u5Energía media de baja frecuencia (Proxy del Chirp): z.2fz dBu#
+[GLITCH - Ruido Instrumental 🎧]u-Pico de Energía Máxima (Proxy del Glitch): uA
+✅ El Espectrograma ha sido generado y transformado con éxito.uDLa matriz resultante (Frecuencia x Tiempo) está lista para una CNN.)r&��)r&rA)rr	)�__doc__�numpyrrr$r>�__name__�print�	senal_bbh�fs�espectrograma_bbhr(r�mean�energia_media_bbh�senal_glitch�espectrograma_glitch�max�energia_max_glitch�r r�<module>rPs^���� �&
+ �"�L�z��	�
+I�J�	�
+A�B�&�'�M�I�r�3�I�r�B��	�
+-�.�	�,�S��^�,<�H�
+E�F�	�<�=N�=T�=T�<U�
+V�W� ���� 1�#�2�#�q�&� 9�:��	�A�BS�TW�AX�X[�
+\�]�,�-��L�"�6�|�R�H��	�
+0�1�	�,�S��->�,?�x�
+H�I�	�<�=Q�=W�=W�<X�
+Y�Z� ���� 4�5��	�9�:L�S�9Q�QT�
+U�V�	�
+N�O�	�
+P�Q�?r 
