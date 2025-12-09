@@ -1,1 +1,1 @@
-# DeepWave Package - Módulos de IA para detección BBH
+# DeepWave AI Package
