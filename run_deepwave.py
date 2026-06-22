@@ -93,7 +93,24 @@ def run_module(module_name, description):
             exec(open(os.path.join("codigo_fuente", "deepwave_preprocessing.py")).read())
             print("✅ Preprocesamiento completado")
         elif module_name == "classifier":
-            exec(open(os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")).read())
+        elif module_name == "classifier":
+    # Intentar usar CNN real si el modelo entrenado existe
+    try:
+        from codigo_fuente.deepwave_classifier_cnn_real import RealDeepWaveCNN
+        cnn = RealDeepWaveCNN("models/best_cnn.h5")
+        print("✅ CNN real cargada. Realizando predicción de prueba...")
+        from codigo_fuente.deepwave_preprocessing import generar_senal_bbh, calcular_espectrograma_stub
+        senal, fs = generar_senal_bbh()
+        spec = calcular_espectrograma_stub(senal, fs)
+        clase, prob = cnn.predict(spec)
+        resultado = "FUSIÓN BBH 🌌" if clase == 1 else "GLITCH 🎧"
+        print(f"  -> Resultado: {resultado}")
+        print(f"  -> Probabilidad BBH: {prob:.4f}")
+    except Exception as e:
+        print(f"⚠️  No se pudo cargar la CNN real ({e})")
+        print("Ejecutando CNN simulada (demostración)...")
+        exec(open(os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")).read())
+    print("✅ Clasificador CNN ejecutado")
             print("✅ Clasificador CNN ejecutado")
         else:
             print("❌ Módulo no reconocido")
