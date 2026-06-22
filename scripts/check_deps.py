@@ -10,7 +10,7 @@ print("=" * 40)
 
 dependencies = [
     ("NumPy", "numpy"),
-    ("SciPy", "scipy"), 
+    ("SciPy", "scipy"),
     ("Matplotlib", "matplotlib"),
 ]
 
