@@ -1,3 +1,5 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from codigo_fuente.deepwave_preprocessing import generar_senal_bbh, generar_senal_glitch, calcular_espectrograma_stub
 
