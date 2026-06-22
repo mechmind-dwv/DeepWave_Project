@@ -1,20 +1,18 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+name: Solicitud de Funcionalidad
+about: Sugiere una idea para DeepWave
+title: "[FEATURE] - Título breve"
+labels: mejora
+assignees: mechmind-dwv
 ---
+**¿Está tu solicitud relacionada con un problema?**
+Explica.
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Describe la solución que te gustaría**
+Clara y concisa.
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+**Alternativas consideradas**
+Si las hay.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Contexto adicional**
+Cualquier cosa relevante.
