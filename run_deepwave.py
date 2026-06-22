@@ -11,9 +11,7 @@ from datetime import datetime
 
 # ================= CONFIGURACIÓN DE PATHS =================
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
-sys.path.insert(0, os.path.join(parent_dir, "codigo_fuente"))
+sys.path.insert(0, os.path.join(current_dir, "codigo_fuente"))
 
 # ================= IMPORTACIÓN SEGURA =================
 def safe_import(module_name, class_name=None):
