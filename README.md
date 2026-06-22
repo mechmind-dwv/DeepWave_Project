@@ -1,4 +1,5 @@
 # 🌌 DEEPWAVE: Sistema de Detección de Fusión de Binarias de Agujeros Negros (BBH) Mediante IA
+![CI](https://github.com/mechmind-dwv/DeepWave_Project/actions/workflows/tests.yml/badge.svg)
 
 ## 🔭 Visión General del Proyecto
 
