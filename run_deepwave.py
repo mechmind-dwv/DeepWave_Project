@@ -10,7 +10,6 @@ import time
 from datetime import datetime
 
 # ================= CONFIGURACIÓN DE PATHS =================
-# Añadir directorio padre al path para importar módulos
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
@@ -32,11 +31,11 @@ def safe_import(module_name, class_name=None):
         else:
             print(f"❌ Módulo {module_name} no reconocido")
             return None
-            
+
         if class_name:
             return getattr(module, class_name, None)
         return module
-        
+
     except ImportError as e:
         print(f"❌ Error importando {module_name}: {e}")
         print(f"💡 Asegúrate de que 'codigo_fuente/{module_name}.py' existe")
@@ -59,13 +58,13 @@ def print_header():
 def check_dependencies():
     """Verifica dependencias críticas"""
     print("\n🔍 Verificando dependencias...")
-    
+
     deps = {
         "NumPy": "numpy",
         "SciPy": "scipy",
         "Matplotlib": "matplotlib",
     }
-    
+
     missing = []
     for name, module in deps.items():
         try:
@@ -74,52 +73,52 @@ def check_dependencies():
         except ImportError:
             print(f"   ❌ {name:15} ... FALTANTE")
             missing.append(module)
-    
+
     return missing
 
 def run_module(module_name, description):
     """Ejecuta un módulo específico"""
     print(f"\n🚀 {description}")
     print("-" * 40)
-    
+
     start_time = time.time()
-    
+
     try:
-        # Ejecutar como script independiente
         if module_name == "core":
             exec(open(os.path.join("codigo_fuente", "deepwave_core.py")).read())
             print("✅ Módulo core ejecutado exitosamente")
+
         elif module_name == "preprocessing":
             exec(open(os.path.join("codigo_fuente", "deepwave_preprocessing.py")).read())
             print("✅ Preprocesamiento completado")
+
         elif module_name == "classifier":
-        elif module_name == "classifier":
-    # Intentar usar CNN real si el modelo entrenado existe
-    try:
-        from codigo_fuente.deepwave_classifier_cnn_real import RealDeepWaveCNN
-        cnn = RealDeepWaveCNN("models/best_cnn.h5")
-        print("✅ CNN real cargada. Realizando predicción de prueba...")
-        from codigo_fuente.deepwave_preprocessing import generar_senal_bbh, calcular_espectrograma_stub
-        senal, fs = generar_senal_bbh()
-        spec = calcular_espectrograma_stub(senal, fs)
-        clase, prob = cnn.predict(spec)
-        resultado = "FUSIÓN BBH 🌌" if clase == 1 else "GLITCH 🎧"
-        print(f"  -> Resultado: {resultado}")
-        print(f"  -> Probabilidad BBH: {prob:.4f}")
-    except Exception as e:
-        print(f"⚠️  No se pudo cargar la CNN real ({e})")
-        print("Ejecutando CNN simulada (demostración)...")
-        exec(open(os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")).read())
-    print("✅ Clasificador CNN ejecutado")
+            # Intentar usar CNN real si el modelo entrenado existe
+            try:
+                from codigo_fuente.deepwave_classifier_cnn_real import RealDeepWaveCNN
+                cnn = RealDeepWaveCNN("models/best_cnn.h5")
+                print("✅ CNN real cargada. Realizando predicción de prueba...")
+                from codigo_fuente.deepwave_preprocessing import generar_senal_bbh, calcular_espectrograma_stub
+                senal, fs = generar_senal_bbh()
+                spec = calcular_espectrograma_stub(senal, fs)
+                clase, prob = cnn.predict(spec)
+                resultado = "FUSIÓN BBH 🌌" if clase == 1 else "GLITCH 🎧"
+                print(f"  -> Resultado: {resultado}")
+                print(f"  -> Probabilidad BBH: {prob:.4f}")
+            except Exception as e:
+                print(f"⚠️  No se pudo cargar la CNN real ({e})")
+                print("Ejecutando CNN simulada (demostración)...")
+                exec(open(os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")).read())
             print("✅ Clasificador CNN ejecutado")
+
         else:
             print("❌ Módulo no reconocido")
             return False
-            
+
         elapsed = time.time() - start_time
         print(f"⏱️  Tiempo de ejecución: {elapsed:.2f} segundos")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error en {module_name}: {str(e)}")
         import traceback
@@ -137,13 +136,13 @@ def main_menu():
         print("5. Verificar dependencias")
         print("6. Mostrar estructura del proyecto")
         print("7. Salir")
-        
+
         try:
             choice = input("\n👉 Selecciona una opción (1-7): ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\n👋 ¡Hasta pronto!")
             break
-        
+
         if choice == "1":
             print("\n🔬 INICIANDO ANÁLISIS COMPLETO")
             print("=" * 40)
@@ -151,16 +150,16 @@ def main_menu():
             run_module("preprocessing", "2. Transformada STFT")
             run_module("classifier", "3. Clasificación profunda CNN")
             print("\n🎉 ANÁLISIS COMPLETADO EXITOSAMENTE")
-            
+
         elif choice == "2":
             run_module("core", "Ejecutando clasificador K-NN")
-            
+
         elif choice == "3":
             run_module("preprocessing", "Ejecutando preprocesamiento STFT")
-            
+
         elif choice == "4":
             run_module("classifier", "Ejecutando clasificador CNN")
-            
+
         elif choice == "5":
             missing = check_dependencies()
             if missing:
@@ -168,30 +167,30 @@ def main_menu():
                 print(f"   pkg install python-{' python-'.join(missing)}")
             else:
                 print("\n✅ Todas las dependencias están instaladas")
-                
+
         elif choice == "6":
             print("\n📁 ESTRUCTURA DEL PROYECTO:")
             try:
                 os.system("tree -L 2 -I '__pycache__|*.pyc|venv*' --dirsfirst 2>/dev/null")
             except:
                 print("(usa 'ls -la' para ver)")
-                
+
         elif choice == "7":
             print("\n👋 ¡Hasta pronto! Que las ondas gravitacionales te acompañen 🌌")
             break
-            
+
         else:
             print("❌ Opción no válida. Intenta nuevamente.")
 
 if __name__ == "__main__":
     print_header()
-    
+
     # Verificar que estamos en el directorio correcto
     if not os.path.exists("codigo_fuente"):
         print("⚠️  No se encuentra 'codigo_fuente'. ¿Estás en el directorio correcto?")
         print("💡 Ejecuta desde: ~/DeepWave_Project")
         sys.exit(1)
-    
+
     # Verificar módulos existentes
     print("\n🔍 Verificando módulos DeepWave...")
     modules = ["deepwave_core.py", "deepwave_preprocessing.py", "deepwave_classifier_cnn.py"]
@@ -200,7 +199,7 @@ if __name__ == "__main__":
             print(f"   ✅ {module:30} ... ENCONTRADO")
         else:
             print(f"   ❌ {module:30} ... NO ENCONTRADO")
-    
+
     # Verificar dependencias críticas
     missing = check_dependencies()
     if missing:
@@ -209,6 +208,6 @@ if __name__ == "__main__":
         response = input("¿Continuar de todos modos? (s/N): ")
         if response.lower() != 's':
             sys.exit(1)
-    
+
     # Ejecutar menú principal
     main_menu()
