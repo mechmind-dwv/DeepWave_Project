@@ -7,13 +7,12 @@ Ejecución principal optimizada para Termux
 import sys
 import os
 import time
+import subprocess
 from datetime import datetime
 
 # ================= CONFIGURACIÓN DE PATHS =================
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
-sys.path.insert(0, os.path.join(parent_dir, "codigo_fuente"))
+sys.path.insert(0, os.path.join(current_dir, "codigo_fuente"))
 
 # ================= IMPORTACIÓN SEGURA =================
 def safe_import(module_name, class_name=None):
@@ -85,11 +84,11 @@ def run_module(module_name, description):
 
     try:
         if module_name == "core":
-            exec(open(os.path.join("codigo_fuente", "deepwave_core.py")).read())
+            subprocess.run([sys.executable, os.path.join("codigo_fuente", "deepwave_core.py")], check=True)
             print("✅ Módulo core ejecutado exitosamente")
 
         elif module_name == "preprocessing":
-            exec(open(os.path.join("codigo_fuente", "deepwave_preprocessing.py")).read())
+            subprocess.run([sys.executable, os.path.join("codigo_fuente", "deepwave_preprocessing.py")], check=True)
             print("✅ Preprocesamiento completado")
 
         elif module_name == "classifier":
@@ -108,7 +107,7 @@ def run_module(module_name, description):
             except Exception as e:
                 print(f"⚠️  No se pudo cargar la CNN real ({e})")
                 print("Ejecutando CNN simulada (demostración)...")
-                exec(open(os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")).read())
+                subprocess.run([sys.executable, os.path.join("codigo_fuente", "deepwave_classifier_cnn.py")], check=True)
             print("✅ Clasificador CNN ejecutado")
 
         else:
@@ -119,6 +118,9 @@ def run_module(module_name, description):
         print(f"⏱️  Tiempo de ejecución: {elapsed:.2f} segundos")
         return True
 
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error en {module_name} (código {e.returncode})")
+        return False
     except Exception as e:
         print(f"❌ Error en {module_name}: {str(e)}")
         import traceback
