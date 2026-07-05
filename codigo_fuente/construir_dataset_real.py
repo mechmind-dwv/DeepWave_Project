@@ -1,15 +1,12 @@
 """
-Construye un dataset 100% REAL para entrenar el K-NN:
-- Positivos: 11 eventos confirmados de GWTC-1-confident
-- Negativos: segmentos de ruido real extraídos de cada archivo,
-  lejos en el tiempo del propio evento (dentro del mismo archivo de 32s,
-  en los bordes, o de otro evento como ruido de fondo cruzado)
-
-Sin ninguna señal sintética en el entrenamiento.
+Construye/amplía un dataset 100% REAL para entrenar el K-NN.
+Acepta una lista de eventos, evita reprocesar los ya guardados,
+y AÑADE al dataset existente en vez de sobrescribirlo.
 """
 import numpy as np
 import h5py
 import os
+import json
 import warnings
 from scipy.signal import welch, butter, filtfilt
 from scipy.signal.windows import tukey
@@ -20,16 +17,26 @@ import urllib.request
 
 warnings.filterwarnings("ignore")
 
-EVENTOS = ["GW150914-v3", "GW151012-v3", "GW151226-v2", "GW170104-v2",
-           "GW170608-v3", "GW170729-v1", "GW170809-v1", "GW170814-v3",
-           "GW170817-v3", "GW170818-v1", "GW170823-v1"]
-
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "eventos_reales")
+DATASET_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+REGISTRO_PATH = os.path.join(DATASET_DIR, "eventos_procesados.json")
 FS_OBJETIVO = 2048
+
+def cargar_registro():
+    if os.path.exists(REGISTRO_PATH):
+        with open(REGISTRO_PATH, "r") as f:
+            return json.load(f)
+    return []
+
+def guardar_registro(registro):
+    with open(REGISTRO_PATH, "w") as f:
+        json.dump(registro, f, indent=2)
 
 def descargar_evento(nombre_evento):
     os.makedirs(DATA_DIR, exist_ok=True)
     urls = get_event_urls(nombre_evento, detector="H1")
+    if not urls:
+        urls = get_event_urls(nombre_evento, detector="L1")
     url = urls[0]
     nombre_archivo = os.path.join(DATA_DIR, f"{nombre_evento}.hdf5")
     if not os.path.exists(nombre_archivo):
@@ -41,7 +48,6 @@ def whitening_completo(segmento, fs):
     nperseg = min(int(fs * 4), len(segmento))
     freqs, psd = welch(segmento, fs=fs, nperseg=nperseg, window="hann")
     interp_psd = interp1d(freqs, psd, bounds_error=False, fill_value="extrapolate")
-
     n = len(segmento)
     ventana = tukey(n, alpha=0.2)
     hf = np.fft.rfft(segmento * ventana)
@@ -49,7 +55,6 @@ def whitening_completo(segmento, fs):
     norm = 1.0 / np.sqrt(fs / 2)
     hf_blanco = hf / np.sqrt(interp_psd(freqs_full)) * norm
     blanco = np.fft.irfft(hf_blanco, n=n)
-
     nyq = fs / 2
     b, a = butter(4, [35 / nyq, 350 / nyq], btype="band")
     return filtfilt(b, a, blanco)
@@ -64,49 +69,63 @@ def remuestrear(segmento, fs_orig, fs_obj):
     return segmento[::factor]
 
 def procesar_evento(nombre_evento):
-    """Devuelve (positivo, negativo1, negativo2) - señales reales listas."""
     archivo = descargar_evento(nombre_evento)
     gps_evento = event_gps(nombre_evento)
-
     with h5py.File(archivo, "r") as f:
         strain = f["strain"]["Strain"][:]
         dt = f["strain"]["Strain"].attrs.get("Xspacing", 1/4096)
         gps_inicio = f["meta"]["GPSstart"][()]
-
     fs = 1.0 / dt
     señal_blanca = whitening_completo(strain, fs)
-
     offset_evento = gps_evento - gps_inicio
     positivo = remuestrear(extraer_ventana(señal_blanca, fs, offset_evento), fs, FS_OBJETIVO)
-
-    # Negativos: bordes del mismo archivo de 32s, lejos del evento (>10s de distancia)
     offset_neg1 = max(2, offset_evento - 12)
     offset_neg2 = min(30, offset_evento + 12)
     negativo1 = remuestrear(extraer_ventana(señal_blanca, fs, offset_neg1), fs, FS_OBJETIVO)
     negativo2 = remuestrear(extraer_ventana(señal_blanca, fs, offset_neg2), fs, FS_OBJETIVO)
-
     return positivo, negativo1, negativo2
 
-if __name__ == "__main__":
-    print("🌌 CONSTRUYENDO DATASET 100% REAL (sin síntesis)")
-    print("=" * 60)
+def ampliar_dataset(nuevos_eventos):
+    registro = cargar_registro()
+    if not registro:
+        # Primera vez: registrar los 11 originales de GWTC-1 ya procesados
+        registro = ["GW150914-v3", "GW151012-v3", "GW151226-v2", "GW170104-v2",
+                    "GW170608-v3", "GW170729-v1", "GW170809-v1", "GW170814-v3",
+                    "GW170817-v3", "GW170818-v1", "GW170823-v1"]
 
-    X_positivos = []
-    X_negativos = []
+    ruta_pos = os.path.join(DATASET_DIR, "dataset_real_positivos.npy")
+    ruta_neg = os.path.join(DATASET_DIR, "dataset_real_negativos.npy")
+    positivos = list(np.load(ruta_pos)) if os.path.exists(ruta_pos) else []
+    negativos = list(np.load(ruta_neg)) if os.path.exists(ruta_neg) else []
 
-    for i, evento in enumerate(EVENTOS, 1):
-        print(f"\n[{i}/{len(EVENTOS)}] Procesando {evento}...")
+    eventos_a_procesar = [e for e in nuevos_eventos if e not in registro]
+    print(f"📋 {len(eventos_a_procesar)} eventos nuevos de {len(nuevos_eventos)} solicitados (resto ya procesado)")
+
+    exitosos, fallidos = 0, 0
+    for i, evento in enumerate(eventos_a_procesar, 1):
+        print(f"\n[{i}/{len(eventos_a_procesar)}] Procesando {evento}...")
         try:
             pos, neg1, neg2 = procesar_evento(evento)
-            X_positivos.append(pos)
-            X_negativos.append(neg1)
-            X_negativos.append(neg2)
+            positivos.append(pos)
+            negativos.append(neg1)
+            negativos.append(neg2)
+            registro.append(evento)
+            exitosos += 1
             print(f"  ✅ 1 positivo + 2 negativos extraídos")
         except Exception as e:
+            fallidos += 1
             print(f"  ❌ Error: {e}")
 
-    print(f"\n📊 Dataset final: {len(X_positivos)} positivos reales, {len(X_negativos)} negativos reales")
+    np.save(ruta_pos, np.array(positivos))
+    np.save(ruta_neg, np.array(negativos))
+    guardar_registro(registro)
 
-    np.save(os.path.join(DATA_DIR, "..", "dataset_real_positivos.npy"), np.array(X_positivos))
-    np.save(os.path.join(DATA_DIR, "..", "dataset_real_negativos.npy"), np.array(X_negativos))
-    print("💾 Guardado en data/dataset_real_positivos.npy y dataset_real_negativos.npy")
+    print(f"\n📊 Dataset TOTAL ahora: {len(positivos)} positivos, {len(negativos)} negativos")
+    print(f"   ({exitosos} exitosos, {fallidos} fallidos en esta ronda)")
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("Uso: python construir_dataset_real.py evento1 evento2 ...")
+        sys.exit(1)
+    ampliar_dataset(sys.argv[1:])
