@@ -207,3 +207,5 @@ marimo/_lsp/
 __marimo__/
 venv_deepwave/
 data/*.hdf5
+modelo_mlp.joblib
+codigo_fuente/deepwave_cnn_train.py
