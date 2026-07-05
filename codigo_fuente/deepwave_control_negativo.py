@@ -57,12 +57,12 @@ if __name__ == "__main__":
 
     offset_evento = GPS_EVENTO - GPS_INICIO_ARCHIVO
     offset_ruido_1 = offset_evento - 1000   # 1000s antes del evento
-    offset_ruido_2 = offset_evento + 1500   # 1500s después
+    offset_ruido_2 = offset_evento + 500   # 1500s después
 
     clasificador = DeepWaveKNNReal(k=5)
     clasificador.entrenar(n_samples=200)
 
-    for nombre, offset in [("RUIDO -1000s", offset_ruido_1), ("RUIDO +1500s", offset_ruido_2)]:
+    for nombre, offset in [("RUIDO -1000s", offset_ruido_1), ("RUIDO +500s", offset_ruido_2)]:
         segmento = procesar_segmento(offset)
         spec = calcular_espectrograma_stub(segmento, FS_OBJETIVO)
         features = extraer_features(spec)

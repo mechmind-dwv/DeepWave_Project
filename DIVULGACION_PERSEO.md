@@ -35,3 +35,26 @@ puente que las traduce.**
 
 ## Fuente
 NASA/Chandra X-ray Observatory — Semana del Agujero Negro.
+
+## Validación experimental: K-NN nativo vs. datos reales de LIGO
+
+Se probó un clasificador K-NN (entrenado exclusivamente con datos
+sintéticos etiquetados) contra segmentos **reales** del archivo público
+de LIGO Hanford correspondiente a GW150914, tras aplicar whitening real
+(PSD por método de Welch + filtro Butterworth 35-350 Hz), sin ningún
+dato inventado en la fase de prueba.
+
+| Segmento | Naturaleza | Predicción | Confianza |
+|---|---|---|---|
+| GW150914 (evento) | Real (LIGO) | FUSIÓN BBH 🌌 | 100% |
+| Ruido -1000s | Real (LIGO) | GLITCH/RUIDO 🎧 | 100% |
+| Ruido +500s | Real (LIGO) | GLITCH/RUIDO 🎧 | 100% |
+
+**Interpretación honesta:** el clasificador distinguió correctamente
+el único evento real confirmado de dos controles negativos de ruido
+real. Esto es evidencia de que el entrenamiento sintético generaliza
+al menos parcialmente a datos reales — **no** es una validación
+estadística robusta (N=1 evento positivo, K=5 vecinos, sin curva
+ROC/AUC, sin matched filtering). Es una prueba de concepto con
+estructura de control apropiada, no un resultado listo para
+publicación científica.
