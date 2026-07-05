@@ -5,7 +5,7 @@ Entrenamiento: datos sintéticos etiquetados (único dataset disponible).
 Clasificación final: espectrograma de datos REALES de GW150914.
 """
 import numpy as np
-from deepwave_preprocessing import (
+from codigo_fuente.deepwave_preprocessing import (
     generar_senal_bbh, generar_senal_glitch, calcular_espectrograma_stub
 )
 

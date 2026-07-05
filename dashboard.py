@@ -20,12 +20,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Importar módulos DeepWave
 try:
-    from codigo_fuente.deepwave_core import WaveAnalyzer
-    from codigo_fuente.deepwave_preprocessing import generate_spectrogram
+    from codigo_fuente.deepwave_preprocessing import calcular_espectrograma_stub
+    from codigo_fuente.deepwave_knn_real import DeepWaveKNNReal, extraer_features
     DEEPWAVE_AVAILABLE = True
 except ImportError:
     DEEPWAVE_AVAILABLE = False
     print("⚠️  Módulos DeepWave no disponibles, usando modo demostración")
+
+RUTA_GW150914_REAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "gw150914_whitened_real.npy")
+FS_REAL = 2048
 
 app = Flask(__name__)
 
@@ -33,7 +36,13 @@ class DeepWaveDashboard:
     """Clase principal del dashboard"""
     
     def __init__(self):
-        self.analyzer = WaveAnalyzer() if DEEPWAVE_AVAILABLE else None
+        self.clasificador = None
+        self.ultima_senal = None
+        self.ultimo_espectrograma = None
+        if DEEPWAVE_AVAILABLE:
+            self.clasificador = DeepWaveKNNReal(k=5)
+            self.clasificador.entrenar(n_samples=200)
+            print("✅ Clasificador K-NN real entrenado (datos sintéticos etiquetados).")
         self.analysis_history = []
         self.stats = {
             "total_analyses": 0,
@@ -42,16 +51,34 @@ class DeepWaveDashboard:
             "accuracy": 0.0
         }
     
+    def _generar_senal(self, amplitude, frequency, persistence, duracion_s=1, fs=FS_REAL):
+        """Genera una señal sintética real a partir de los parámetros del
+        usuario, para clasificarla con el K-NN real (no es un número
+        aleatorio, es una señal STFT-analizable de verdad)."""
+        t = np.linspace(0, duracion_s, int(fs * duracion_s), endpoint=False)
+        variacion = (1.0 - persistence) * 80
+        fase = 2 * np.pi * (frequency * t + variacion * t**2 / 2)
+        senal = amplitude * np.sin(fase)
+        senal += (1.0 - persistence) * 0.4 * np.random.normal(size=t.shape)
+        return senal
+
     def analyze_signal(self, amplitude=0.5, frequency=100, persistence=0.5):
-        """Analiza una señal con parámetros dados"""
-        if self.analyzer:
-            # Usar el analizador real
-            result = self.analyzer.analyze_waveform(amplitude, frequency, persistence)
-            is_bbh = "FUSIÓN" in result
+        """Analiza una señal generada a partir de los parámetros dados,
+        usando el clasificador K-NN real sobre su espectrograma STFT."""
+        if self.clasificador:
+            senal = self._generar_senal(amplitude, frequency, persistence)
+            espectrograma = calcular_espectrograma_stub(senal, FS_REAL)
+            features = extraer_features(espectrograma)
+            prediccion, confianza_knn = self.clasificador.predecir(features)
+            is_bbh = bool(prediccion == 1)
+            result = "FUSIÓN BBH" if is_bbh else "GLITCH"
+            self.ultima_senal = senal
+            self.ultimo_espectrograma = espectrograma
         else:
-            # Modo demostración
+            # Modo demostración (clasificador no disponible)
             result = "FUSIÓN BBH" if frequency < 80 else "GLITCH"
             is_bbh = "FUSIÓN" in result
+            confianza_knn = np.random.uniform(0.7, 0.99) if is_bbh else np.random.uniform(0.3, 0.6)
         
         analysis = {
             "id": len(self.analysis_history) + 1,
@@ -61,7 +88,7 @@ class DeepWaveDashboard:
             "persistence": persistence,
             "result": result,
             "is_bbh": is_bbh,
-            "confidence": np.random.uniform(0.7, 0.99) if is_bbh else np.random.uniform(0.3, 0.6)
+            "confidence": float(confianza_knn)
         }
         
         self.analysis_history.append(analysis)
@@ -174,7 +201,7 @@ class DeepWaveDashboard:
             theta=categories,
             fill='toself',
             line_color='#FF6B6B' if latest["is_bbh"] else '#4ECDC4',
-            fillcolor='rgba(255,107,107,0.25)' if latest["is_bbh"] else '#4ECDC440',
+            fillcolor='rgba(255,107,107,0.25)' if latest["is_bbh"] else 'rgba(78,205,196,0.25)',
             name="Características de la señal"
         ))
         
