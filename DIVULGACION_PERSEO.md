@@ -108,3 +108,34 @@ proceso científico: un experimento negativo bien controlado es tan
 valioso como uno positivo, y evita repetir el mismo error. El K-NN
 con features diseñadas a mano (`deepwave_knn_real.py`) sigue siendo
 el clasificador validado y en uso.
+
+## K-NN entrenado 100% con datos reales (sin síntesis)
+
+Se construyó un dataset íntegramente real: 11 eventos confirmados de
+LIGO (catálogo GWTC-1-confident) como positivos, más 22 segmentos de
+ruido real extraídos de los mismos archivos como negativos — ninguna
+señal sintética en ningún paso, desde la descarga hasta el entrenamiento.
+
+**Validación leave-one-out** (cada muestra probada excluida de su
+propio entrenamiento, el estándar más honesto posible con un dataset
+pequeño):
+
+| Métrica | Resultado |
+|---|---|
+| Precisión global | 27/33 = 81.8% |
+| Detección de eventos reales (recall positivos) | 6/11 = 54.5% |
+| Rechazo correcto de ruido (recall negativos) | 21/22 = 95.5% |
+
+**Interpretación honesta:** el clasificador está sesgado hacia
+predecir "ruido", parcialmente por el desbalance de clases (2
+negativos por cada positivo) y parcialmente porque algunos eventos
+reales del catálogo (ej. GW151012, GW170729) tienen SNR más bajo y
+son intrínsecamente más difíciles de distinguir del ruido de fondo
+con features simples. Esto es una limitación real y esperable de un
+K-NN con 3 features sobre solo 11 eventos — no un error del pipeline.
+
+**Comparación honesta con los experimentos previos:** a diferencia
+del MLP (100% de "precisión" pero fallando completamente el control
+negativo), este 81.8% es un número menos vistoso pero mucho más
+creíble — refleja limitaciones reales del método, no sobreajuste
+oculto.
