@@ -107,18 +107,19 @@ class DeepWaveDashboard:
             self.stats["accuracy"] = (self.stats["bbh_detections"] / self.stats["total_analyses"]) * 100
     
     def generate_waveform_plot(self):
-        """Genera gráfico de forma de onda"""
-        t = np.linspace(0, 2*np.pi, 1000)
-        
-        # Señal BBH típica (chirp)
+        """Genera gráfico de forma de onda a partir de la señal REAL
+        usada en el último análisis (no una réplica aleatoria)."""
+        if self.ultima_senal is not None:
+            wave = self.ultima_senal
+            t = np.linspace(0, 1, len(wave))
+        else:
+            t = np.linspace(0, 2*np.pi, 1000)
+            wave = np.sin(100 * t) * 0.3 + np.random.normal(0, 0.1, 1000)
+
         if self.analysis_history and self.analysis_history[-1]["is_bbh"]:
-            freq = self.analysis_history[-1]["frequency"]
-            wave = np.sin(freq * t * (1 + 0.1 * t)) * self.analysis_history[-1]["amplitude"]
             color = "#FF6B6B"  # Rojo para BBH
             name = "Señal BBH (Chirp)"
         else:
-            # Ruido + señal débil
-            wave = np.sin(100 * t) * 0.3 + np.random.normal(0, 0.1, 1000)
             color = "#4ECDC4"  # Turquesa para glitch
             name = "Señal + Ruido"
         
@@ -145,23 +146,14 @@ class DeepWaveDashboard:
         return fig.to_json()
     
     def generate_spectrogram_plot(self):
-        """Genera espectrograma simulado"""
-        # Datos para espectrograma
-        fs = 1000  # Frecuencia de muestreo
-        t = np.linspace(0, 1, fs)
-        
-        if self.analysis_history and self.analysis_history[-1]["is_bbh"]:
-            # Espectrograma de chirp BBH (frecuencia aumenta)
-            f0 = 30
-            f1 = 200
-            chirp = np.sin(2 * np.pi * (f0 * t + (f1 - f0) * t**2 / 2))
-            signal = chirp * self.analysis_history[-1]["amplitude"]
+        """Genera el espectrograma REAL calculado en el último análisis
+        (STFT real vía calcular_espectrograma_stub, no una simulación)."""
+        if self.ultimo_espectrograma is not None:
+            spectrogram = self.ultimo_espectrograma
         else:
-            # Espectrograma de ruido
+            fs = 1000
             signal = np.random.randn(fs) * 0.5
-        
-        # Espectrograma simple
-        spectrogram = np.abs(np.fft.fft(signal).reshape(20, 50))
+            spectrogram = np.abs(np.fft.fft(signal).reshape(20, 50))
         
         fig = go.Figure(data=go.Heatmap(
             z=spectrogram,
