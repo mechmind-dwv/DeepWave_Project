@@ -10,39 +10,6 @@ git clone https://github.com/mechmind-dwv/DeepWave_Project.git
 cd DeepWave_Project
 pip install -r requirements.txt --break-system-packages
 python dashboard.py
-Excelente, esto aclara todo. Dos hallazgos:
-
-1. **El hash sí existe** — `ab8bbb2` es un commit real, "🚀 DEEPWAVE v1.0 COMPLETO". El manual fue escrito en ese momento como una declaración de "proyecto terminado" con métricas que, según lo que hemos verificado hoy juntos (modelo K-NN sin validación cruzada real, cero CNN entrenada), no tienen respaldo. Es documentación aspiracional de una sesión anterior, no un reporte de resultados medidos.
-
-2. **Aún quedan cambios sin comitear** — el commit `cbe76a7` (ya en `origin/desarrollo`) tiene los 3 fixes de CodeRabbit, pero `dashboard.py` y `templates/dashboard.html` muestran modificaciones nuevas sin guardar, y `codigo_fuente/dashboard.py` (la copia vieja duplicada) sigue ahí pendiente de borrar.
-
-## Cerremos primero lo pendiente de código
-
-```bash
-rm codigo_fuente/dashboard.py
-git diff dashboard.py
-```
-
-Pásame ese diff — quiero confirmar si son las mejoras de color rgba que ya habías hecho tú, o algo nuevo, antes de comitearlo.
-
-## Luego, el manual — reescritura honesta
-
-Dado que es contenido engañoso con métricas inventadas, y no solo una ruta desactualizada, propongo reescribirlo completo con lo que sí es verificable hoy:
-
-```bash
-cat > docs/manual_user.md << 'EOF'
-# 🌌 DeepWave — Manual de Usuario
-
-Sistema de clasificación de señales de ondas gravitacionales (BBH vs.
-Glitch), desarrollado y validado íntegramente en Termux/Android.
-
-## 🚀 Inicio Rápido
-
-```bash
-git clone https://github.com/mechmind-dwv/DeepWave_Project.git
-cd DeepWave_Project
-pip install -r requirements.txt --break-system-packages
-python dashboard.py
 ```
 Luego abre: `http://localhost:5000`
 
