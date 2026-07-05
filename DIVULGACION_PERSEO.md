@@ -83,3 +83,28 @@ proceso científico: un experimento negativo bien controlado es tan
 valioso como uno positivo, y evita repetir el mismo error. El K-NN
 con features diseñadas a mano (`deepwave_knn_real.py`) sigue siendo
 el clasificador validado y en uso.
+
+## Experimento fallido (documentado por transparencia): MLP con espectrograma completo
+
+Se probó un `MLPClassifier` (scikit-learn, 3 capas 128-64-32) entrenado
+sobre el espectrograma completo aplanado (1957 valores), en vez de
+features resumidas a mano. Resultado en datos sintéticos: 100% de
+precisión en validación — cifra sospechosamente perfecta.
+
+Al validar contra datos reales con la misma estructura de control
+usada para el K-NN, el MLP **falló el control negativo**:
+
+| Segmento | Naturaleza | Predicción MLP | Confianza |
+|---|---|---|---|
+| GW150914 (evento) | Real (LIGO) | FUSIÓN BBH 🌌 | 100% |
+| Ruido -1000s | Real (LIGO) | FUSIÓN BBH 🌌 (❌ incorrecto) | 100% |
+| Ruido +500s | Real (LIGO) | FUSIÓN BBH 🌌 (❌ incorrecto) | 100% |
+
+**Conclusión honesta:** el 100% de precisión sintética fue sobreajuste,
+no generalización. El modelo memorizó particularidades del generador
+sintético de ruido, no la diferencia real chirp-vs-ruido. **Este
+modelo NO se integró al dashboard.** Se documenta como parte del
+proceso científico: un experimento negativo bien controlado es tan
+valioso como uno positivo, y evita repetir el mismo error. El K-NN
+con features diseñadas a mano (`deepwave_knn_real.py`) sigue siendo
+el clasificador validado y en uso.
