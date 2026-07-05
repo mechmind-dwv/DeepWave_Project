@@ -478,7 +478,7 @@
         // Función para ejecutar secuencia de pruebas
         async function runTestSequence() {
             try {
-                const response = await fetch('/api/test_sequence');
+                const response = await fetch('/api/test_sequence', { method: 'POST' });
                 const data = await response.json();
                 
                 if (data.success) {

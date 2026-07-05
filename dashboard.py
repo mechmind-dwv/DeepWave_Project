@@ -65,6 +65,7 @@ class DeepWaveDashboard:
         }
         
         self.analysis_history.append(analysis)
+        self.analysis_history = self.analysis_history[-100:]
         self.update_stats()
         
         return analysis
@@ -202,8 +203,18 @@ def index():
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
     """API para analizar una señal"""
-    data = request.json
-    
+    data = request.get_json(silent=True) or {}
+
+    if data.get('reset'):
+        dashboard.analysis_history.clear()
+        dashboard.stats = {
+            "total_analyses": 0,
+            "bbh_detections": 0,
+            "glitch_detections": 0,
+            "accuracy": 0.0
+        }
+        return jsonify({"success": True})
+
     amplitude = data.get('amplitude', 0.5)
     frequency = data.get('frequency', 100)
     persistence = data.get('persistence', 0.5)
@@ -237,7 +248,7 @@ def get_stats():
     """Obtiene estadísticas"""
     return jsonify(dashboard.stats)
 
-@app.route('/api/test_sequence')
+@app.route('/api/test_sequence', methods=['POST'])
 def test_sequence():
     """Ejecuta una secuencia de pruebas automática"""
     test_cases = [
@@ -743,7 +754,7 @@ HTML_TEMPLATE = """
         // Función para ejecutar secuencia de pruebas
         async function runTestSequence() {
             try {
-                const response = await fetch('/api/test_sequence');
+                const response = await fetch('/api/test_sequence', { method: 'POST' });
                 const data = await response.json();
                 
                 if (data.success) {
