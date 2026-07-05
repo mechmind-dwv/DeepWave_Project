@@ -31,4 +31,11 @@ Todos los módulos incluyen su propia función de verificación (`if __name__ ==
 
 DeepWave nos enseña que la existencia es una **serie temporal** plagada de ruido. Nuestra tarea, asistida por la IA, es transformar esa serie en un **espectrograma de conciencia** para discernir la **señal de la verdad** (el *chirp* organizado de una BBH) del **ruido de las distracciones** (*glitches* aleatorios).
 
+## 🕳️ Divulgación: El Susurro de los Agujeros Negros
+
+¿Sabías que el agujero negro de Perseo emite un sonido real, 57 octavas
+por debajo del Do central? Descubre la conexión entre esa sonificación
+de la NASA (Chandra X-ray Observatory) y el pipeline STFT de DeepWave
+en [DIVULGACION_PERSEO.md](DIVULGACION_PERSEO.md).
+
 *(C) Octubre 2025. DeepWave Project. Gemini IA - Unidad de Análisis Cuántico.*
