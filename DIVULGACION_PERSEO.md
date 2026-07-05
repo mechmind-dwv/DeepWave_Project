@@ -174,3 +174,23 @@ señal.
 **Fuente de los valores de SNR:** LIGO/Virgo Collaboration, "GWTC-1:
 A Gravitational-Wave Transient Catalog of Compact Binary Mergers",
 Phys. Rev. X 9, 031040 (2019), Table VI.
+
+## Se descartan también tipo de fuente y masa como explicación simple
+
+- **Tipo de fuente:** solo GW170817 es BNS; los otros 10 eventos son
+  BBH. El tipo de fuente no puede explicar por qué 5 de esos 10 BBH
+  fallan y 5 no.
+- **Masa de chirp:** los rangos de masa de eventos detectados y
+  fallados se solapan sustancialmente (ej. GW170608 falla con 7.90 M☉
+  mientras GW151226 se detecta con 8.87 M☉; GW150914 se detecta con
+  28.72 M☉ mientras GW170823 falla con 29.64 M☉, prácticamente igual).
+
+**Conclusión honesta final:** con n=11 eventos, ninguna variable
+física simple (SNR, masa de chirp, tipo de fuente) separa limpiamente
+los aciertos de los fallos del K-NN. La causa más probable es una
+combinación de: (a) tamaño de muestra insuficiente para que 3
+features artesanales generalicen, (b) ruido instrumental específico
+de cada ventana de 32s, no capturado por ningún catálogo de
+parámetros físicos. Este es un límite genuino del método actual, no
+un bug — y una motivación clara para, en el futuro, usar más eventos
+(GWTC-2, GWTC-3 añaden decenas más) o features más sofisticadas.
