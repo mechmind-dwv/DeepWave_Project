@@ -96,13 +96,15 @@ class DeepWaveDashboard:
             name = "Señal + Ruido"
         
         fig = go.Figure()
+        # Calcular color rgba para relleno
+        r, g, b = int(color[1:3],16), int(color[3:5],16), int(color[5:7],16)
         fig.add_trace(go.Scatter(
             x=t, y=wave,
             mode='lines',
             name=name,
             line=dict(color=color, width=3),
             fill='tozeroy',
-            fillcolor=f'{color}20'
+            fillcolor=f'rgba({r},{g},{b},0.125)'
         ))
         
         fig.update_layout(
@@ -172,7 +174,7 @@ class DeepWaveDashboard:
             theta=categories,
             fill='toself',
             line_color='#FF6B6B' if latest["is_bbh"] else '#4ECDC4',
-            fillcolor='#FF6B6B40' if latest["is_bbh"] else '#4ECDC440',
+            fillcolor='rgba(255,107,107,0.25)' if latest["is_bbh"] else '#4ECDC440',
             name="Características de la señal"
         ))
         
