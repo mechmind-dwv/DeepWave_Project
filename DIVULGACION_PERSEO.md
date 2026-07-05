@@ -139,3 +139,38 @@ del MLP (100% de "precisión" pero fallando completamente el control
 negativo), este 81.8% es un número menos vistoso pero mucho más
 creíble — refleja limitaciones reales del método, no sobreajuste
 oculto.
+
+## Diagnóstico honesto: ¿por qué falla el 45% de los eventos reales?
+
+Se cruzaron los fallos de clasificación con los valores de SNR
+(relación señal-ruido) oficiales publicados en el catálogo GWTC-1
+(LIGO/Virgo, Phys. Rev. X 9, 031040, 2019):
+
+| Evento | SNR oficial (GWTC-1) | Resultado K=3 |
+|---|---|---|
+| GW150914 | 24.4 | ✅ Detectado |
+| GW151012 | 9.8 (el más bajo del catálogo) | ✅ Detectado |
+| GW151226 | 12.7 | ✅ (falla solo en K=5) |
+| GW170104 | 13.0 | ❌ Fallado siempre |
+| GW170608 | 14.8 | ❌ Fallado siempre |
+| GW170729 | 10.3 | ❌ Fallado siempre |
+| GW170809 | 12.3 | ❌ Fallado siempre |
+| GW170814 | 16.5 | ✅ Detectado |
+| GW170817 (BNS) | 32.0 (el más alto del catálogo) | ⚠️ Falla en K=5 |
+| GW170818 | 11.3 | ✅ Detectado |
+| GW170823 | 11.5 | ❌ Fallado siempre |
+
+**Hallazgo honesto:** el SNR NO predice nuestros fallos. GW151012
+tiene el SNR más bajo del catálogo (9.8) y se detecta perfectamente;
+GW170817 tiene el SNR más alto (32.0, el evento con neutron star
+merger, no BBH) y aun así falla en algunas configuraciones. La causa
+real es más probablemente que las 3 features usadas (energía en
+banda baja, pendiente temporal, pico máximo) están sintonizadas para
+un patrón de chirp específico, y no capturan bien la variedad real de
+masas y duraciones presentes en el catálogo completo — una limitación
+de diseño de features, no de calidad de los datos ni del SNR de la
+señal.
+
+**Fuente de los valores de SNR:** LIGO/Virgo Collaboration, "GWTC-1:
+A Gravitational-Wave Transient Catalog of Compact Binary Mergers",
+Phys. Rev. X 9, 031040 (2019), Table VI.
