@@ -1,13 +1,5 @@
 # 📋 DeepWave — Pendientes (actualizado 5 julio 2026)
 
-## 🔴 Prioridad alta
-
-- [ ] **Conectar `dashboard.py` al clasificador real.** Actualmente los
-      imports (`WaveAnalyzer`, `generate_spectrogram`) no existen en el
-      código real, así que el dashboard siempre corre en modo demo con
-      resultados aleatorios. Cambiar a `DeepWaveKNNReal` +
-      `calcular_espectrograma_stub` (ver `codigo_fuente/deepwave_knn_real.py`).
-
 ## 🟡 Prioridad media
 
 - [ ] **Ampliar la validación a más eventos reales de GWOSC**
@@ -35,6 +27,12 @@
       días desde ~5 julio 2026).
 
 ## ✅ Completado (5 julio 2026)
+
+- [x] Dashboard conectado al clasificador K-NN real: ya no modo demo
+      aleatorio, sino clasificación real vía espectrograma STFT de una
+      señal generada a partir de los parámetros del usuario. Gráficos
+      de forma de onda y espectrograma también muestran la señal real
+      del último análisis, no una réplica cosmética.
 
 - [x] Divulgación Perseo↔DeepWave documentada y fusionada a `main`
 - [x] SSH configurado correctamente (`~/.ssh/config`)
