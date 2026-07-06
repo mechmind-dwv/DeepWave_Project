@@ -73,11 +73,11 @@ if __name__ == "__main__":
     print(f"Dataset: {len(X_pos)} positivos, {len(X_neg)} negativos reales\n")
 
     configuraciones = [
-        (1, False, "K=1, sin balancear (22 neg)"),
-        (3, False, "K=3, sin balancear (22 neg) [línea base]"),
-        (1, True,  "K=1, balanceado (11 neg)"),
-        (3, True,  "K=3, balanceado (11 neg)"),
-        (5, True,  "K=5, balanceado (11 neg)"),
+        (1, False, "K=1, sin balancear (dataset completo)"),
+        (3, False, "K=3, sin balancear (dataset completo) [línea base]"),
+        (1, True,  "K=1, balanceado (1:1)"),
+        (3, True,  "K=3, balanceado (1:1)"),
+        (5, True,  "K=5, balanceado (1:1)"),
     ]
 
     print(f"{'Configuración':<45} {'Global':>8} {'Recall+':>9} {'Recall-':>9}")

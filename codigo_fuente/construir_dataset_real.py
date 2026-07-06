@@ -23,14 +23,20 @@ REGISTRO_PATH = os.path.join(DATASET_DIR, "eventos_procesados.json")
 FS_OBJETIVO = 2048
 
 def cargar_registro():
+    """Devuelve (lista_procesados, lista_excluidos). Compatible con
+    el formato antiguo (lista simple) y el nuevo (dict con dos claves)."""
     if os.path.exists(REGISTRO_PATH):
         with open(REGISTRO_PATH, "r") as f:
-            return json.load(f)
-    return []
+            data = json.load(f)
+        if isinstance(data, dict):
+            return data.get("eventos_procesados", []), data.get("eventos_excluidos_por_nan", [])
+        else:
+            return data, []
+    return [], []
 
-def guardar_registro(registro):
+def guardar_registro(procesados, excluidos):
     with open(REGISTRO_PATH, "w") as f:
-        json.dump(registro, f, indent=2)
+        json.dump({"eventos_procesados": procesados, "eventos_excluidos_por_nan": excluidos}, f, indent=2)
 
 def descargar_evento(nombre_evento):
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -86,19 +92,14 @@ def procesar_evento(nombre_evento):
     return positivo, negativo1, negativo2
 
 def ampliar_dataset(nuevos_eventos):
-    registro = cargar_registro()
-    if not registro:
-        # Primera vez: registrar los 11 originales de GWTC-1 ya procesados
-        registro = ["GW150914-v3", "GW151012-v3", "GW151226-v2", "GW170104-v2",
-                    "GW170608-v3", "GW170729-v1", "GW170809-v1", "GW170814-v3",
-                    "GW170817-v3", "GW170818-v1", "GW170823-v1"]
+    procesados, excluidos = cargar_registro()
 
     ruta_pos = os.path.join(DATASET_DIR, "dataset_real_positivos.npy")
     ruta_neg = os.path.join(DATASET_DIR, "dataset_real_negativos.npy")
     positivos = list(np.load(ruta_pos)) if os.path.exists(ruta_pos) else []
     negativos = list(np.load(ruta_neg)) if os.path.exists(ruta_neg) else []
 
-    eventos_a_procesar = [e for e in nuevos_eventos if e not in registro]
+    eventos_a_procesar = [e for e in nuevos_eventos if e not in procesados and e not in excluidos]
     print(f"📋 {len(eventos_a_procesar)} eventos nuevos de {len(nuevos_eventos)} solicitados (resto ya procesado)")
 
     exitosos, fallidos = 0, 0
@@ -106,10 +107,15 @@ def ampliar_dataset(nuevos_eventos):
         print(f"\n[{i}/{len(eventos_a_procesar)}] Procesando {evento}...")
         try:
             pos, neg1, neg2 = procesar_evento(evento)
+            if np.isnan(pos).any() or np.isnan(neg1).any() or np.isnan(neg2).any():
+                excluidos.append(evento)
+                fallidos += 1
+                print(f"  ⚠️  Excluido: contiene NaN (dato real incompleto)")
+                continue
             positivos.append(pos)
             negativos.append(neg1)
             negativos.append(neg2)
-            registro.append(evento)
+            procesados.append(evento)
             exitosos += 1
             print(f"  ✅ 1 positivo + 2 negativos extraídos")
         except Exception as e:
@@ -118,7 +124,7 @@ def ampliar_dataset(nuevos_eventos):
 
     np.save(ruta_pos, np.array(positivos))
     np.save(ruta_neg, np.array(negativos))
-    guardar_registro(registro)
+    guardar_registro(procesados, excluidos)
 
     print(f"\n📊 Dataset TOTAL ahora: {len(positivos)} positivos, {len(negativos)} negativos")
     print(f"   ({exitosos} exitosos, {fallidos} fallidos en esta ronda)")
