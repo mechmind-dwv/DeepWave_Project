@@ -194,3 +194,19 @@ de cada ventana de 32s, no capturado por ningún catálogo de
 parámetros físicos. Este es un límite genuino del método actual, no
 un bug — y una motivación clara para, en el futuro, usar más eventos
 (GWTC-2, GWTC-3 añaden decenas más) o features más sofisticadas.
+
+## Evento excluido del dataset: GW190425 (dato real incompleto)
+
+Al ampliar el dataset con eventos de GWTC-2.1, se detectó que el
+archivo de strain de H1 para **GW190425** contiene un 34% de valores
+`NaN` (5,685,248 de 16,777,216 muestras). Esto no es un error de
+nuestro pipeline: el detector H1 de LIGO Hanford tenía problemas de
+calidad de datos durante este evento (25 abril 2019), que fue
+detectado principalmente por Virgo y L1. Se excluyó este evento del
+dataset de entrenamiento en vez de imputar o ignorar los NaN
+silenciosamente, para mantener la integridad de "solo datos reales,
+sin síntesis ni parches artificiales".
+
+**Lección para el pipeline:** futuras ampliaciones del dataset deben
+verificar la fracción de NaN en cada archivo descargado antes de
+usarlo, no asumir que todos los archivos de GWOSC están completos.
