@@ -2,10 +2,11 @@
 
 ## 🟡 Prioridad media
 
-- [ ] **Ampliar la validación a más eventos reales de GWOSC**
-      (GW170814, GW190521) para tener más de N=1 positivo. Generalizar
-      `deepwave_control_negativo.py` para aceptar cualquier evento por
-      GPS time en vez de tenerlo hardcodeado a GW150914.
+- [x] ~~Ampliar la validación a más eventos reales de GWOSC~~ — **SUPERADO**:
+      se amplió a 40 eventos reales (GWTC-1 completo + 29 de GWTC-2.1),
+      no solo GW170814/GW190521. `construir_dataset_real.py` generaliza
+      la extracción de negativos por GPS time para cualquier evento.
+      Ver rama `feature/mlp-classifier`.
 - [ ] **Curva ROC/AUC real** una vez haya más de un evento — daría una
       métrica honesta de tasa de falsos positivos, algo que el K-NN
       actual con K=5 y confianza binaria no ofrece.
