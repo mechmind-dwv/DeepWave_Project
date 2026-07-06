@@ -39,14 +39,15 @@ class RealDeepWaveCNN:
         self.model = model
         return model
 
-    def train(self, X_train, y_train, X_val=None, y_val=None, epochs=30, batch_size=32):
+    def train(self, X_train, y_train, X_val=None, y_val=None, epochs=30, batch_size=32, callbacks=None):
         if self.model is None:
             self.build_model()
         validation_data = (X_val, y_val) if X_val is not None else None
         history = self.model.fit(X_train, y_train,
                                  validation_data=validation_data,
                                  epochs=epochs,
-                                 batch_size=batch_size)
+                                 batch_size=batch_size,
+                                 callbacks=callbacks or [])
         return history
 
     def predict(self, espectrograma):
