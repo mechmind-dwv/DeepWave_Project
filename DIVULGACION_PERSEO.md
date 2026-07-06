@@ -210,3 +210,34 @@ sin síntesis ni parches artificiales".
 **Lección para el pipeline:** futuras ampliaciones del dataset deben
 verificar la fracción de NaN en cada archivo descargado antes de
 usarlo, no asumir que todos los archivos de GWOSC están completos.
+
+## Curva de aprendizaje real: la meseta del K-NN con 3 features
+
+Se amplió el dataset real en tres etapas (11 → 25 → 40 eventos
+confirmados de LIGO/Virgo), repitiendo la validación leave-one-out
+en cada una:
+
+| Tamaño dataset | Mejor configuración | Recall+ | Recall- | Global |
+|---|---|---|---|---|
+| 33 muestras (11 eventos) | K=3 sin balancear | 54.5% | 95.5% | 81.8% |
+| 75 muestras (25 eventos) | K=3 balanceado | 68.0% | 72.0% | 70.0% |
+| 120 muestras (40 eventos) | K=1 balanceado | 67.5% | 72.5% | 70.0% |
+
+**Conclusión honesta:** el salto de 11→25 eventos trajo una mejora
+real en Recall+ (54.5%→68%). Pero de 25→40 eventos, el Recall+ se
+estancó (68%→67.5%, dentro del margen de ruido). Esto indica que el
+cuello de botella ya no es la cantidad de datos, sino el diseño de
+las 3 features (energía en banda baja, pendiente temporal, pico
+máximo) — probablemente no capturan suficiente información para
+distinguir estos casos límite, sin importar cuántos eventos más se
+añadan. Duplicar el dataset una vez más (a ~80 eventos) podría no
+mejorar significativamente el resultado; el siguiente paso lógico
+sería enriquecer las features (por ejemplo, más estadísticos del
+espectrograma, o coeficientes de la transformada wavelet) antes de
+seguir solo agregando eventos.
+
+**Nota metodológica:** con un solo detector (H1) y ventanas de 32s,
+el dataset seguirá siendo pequeño en términos absolutos comparado
+con lo que requeriría un entrenamiento profundo real; esta limitación
+de escala es inherente al recurso de cómputo (Termux/Android) y al
+tiempo de descarga, no un descuido.
