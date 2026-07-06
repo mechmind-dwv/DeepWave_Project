@@ -41,3 +41,28 @@
 - [x] Validación con control negativo (1 positivo real + 2 negativos reales)
 - [x] 3 fixes de CodeRabbit aplicados (reset, POST en test_sequence, límite de historial)
 - [x] Manual de usuario reescrito sin métricas inventadas
+
+## 🔬 Rama feature/mlp-classifier (5-6 julio 2026)
+
+- [x] MLP con espectrograma completo: **descartado**, falló control
+      negativo real (documentado en DIVULGACION_PERSEO.md)
+- [x] Dataset 100% real construido: 40 eventos GWTC-1/GWTC-2.1 +
+      80 negativos, sin síntesis (GW190425 excluido por 34% NaN)
+- [x] K-NN entrenado con datos 100% reales, validación leave-one-out
+      en 3 escalas (11→25→40 eventos)
+- [x] Hallazgo documentado: meseta de Recall+ (~68%) al pasar de 25
+      a 40 eventos — el cuello de botella pasó de "faltan datos" a
+      "faltan mejores features"
+
+### Próximos pasos concretos para esta rama
+- [ ] Enriquecer features: probar añadir más estadísticos del
+      espectrograma (varianza, entropía espectral, número de picos)
+      en vez de solo las 3 actuales (energía baja, pendiente, pico)
+- [ ] Considerar coeficientes wavelet como alternativa a STFT simple
+- [ ] Si las features mejoradas no rompen la meseta, sería evidencia
+      de que hace falta un modelo más expresivo (red neuronal simple
+      bien regularizada, no el MLP que sobreajustó) entrenado con
+      más datos (80-100 eventos de GWTC-3 completo)
+- [ ] Decidir si esta rama se fusiona a `desarrollo` tal cual (como
+      "K-NN validado con datos reales, con limitaciones documentadas")
+      o si espera a la siguiente iteración de features
