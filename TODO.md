@@ -7,9 +7,10 @@
       no solo GW170814/GW190521. `construir_dataset_real.py` generaliza
       la extracción de negativos por GPS time para cualquier evento.
       Ver rama `feature/mlp-classifier`.
-- [ ] **Curva ROC/AUC real** una vez haya más de un evento — daría una
-      métrica honesta de tasa de falsos positivos, algo que el K-NN
-      actual con K=5 y confianza binaria no ofrece.
+- [x] ~~Curva ROC/AUC real~~ — **COMPLETADO**: AUC=0.754 sobre 40
+      eventos reales (leave-one-out, score continuo K=15). Gráfico en
+      `docs/curva_roc_deepwave.png`. Punto de operación óptimo
+      identificado (umbral 0.4 → TPR=60%, FPR=7.5%).
 - [ ] **Entrenar la CNN real** (`deepwave_classifier_cnn_real.py` +
       `train_cnn.py`) en Google Colab, ya que TensorFlow no instala en
       Termux/Android. Descargar el `.h5` resultante y decidir cómo
