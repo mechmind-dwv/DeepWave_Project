@@ -11,11 +11,13 @@
       eventos reales (leave-one-out, score continuo K=15). Gráfico en
       `docs/curva_roc_deepwave.png`. Punto de operación óptimo
       identificado (umbral 0.4 → TPR=60%, FPR=7.5%).
-- [ ] **Entrenar la CNN real** (`deepwave_classifier_cnn_real.py` +
-      `train_cnn.py`) en Google Colab, ya que TensorFlow no instala en
-      Termux/Android. Descargar el `.h5` resultante y decidir cómo
-      hacer inferencia en el dispositivo (reimplementar forward-pass a
-      mano con numpy, o usar tflite-runtime si hay wheel disponible).
+- [x] ~~Entrenar la CNN real en Google Colab~~ — **COMPLETADO, resultado
+      negativo honesto**: k-fold da 67.5%±1.7%, pero la matriz de
+      confusión revela Recall+=25% (vs 67.5% del K-NN). Con solo 120
+      muestras, la CNN no supera al K-NN con features artesanales.
+      Documentado en DIVULGACION_PERSEO.md. NO se implementó inferencia
+      en Termux (tflite-runtime no tiene wheel; no vale la pena
+      reconstruir el forward-pass a mano para un modelo que no gana).
 
 ## 🟢 Prioridad baja / limpieza
 
