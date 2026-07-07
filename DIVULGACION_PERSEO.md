@@ -264,3 +264,40 @@ mayoritario simple), que da menor sensibilidad a cambio de mayor
 especificidad.
 
 Gráfico disponible en `docs/curva_roc_deepwave.png`.
+
+## CNN entrenada en Colab con dataset real: no supera al K-NN
+
+Se entrenó `deepwave_classifier_cnn_real.py` en Google Colab (con GPU,
+ya que TensorFlow no corre en Termux) usando el mismo dataset real de
+120 muestras (40 eventos + 80 negativos) que valida el K-NN. Se usó
+validación 5-fold estratificada con EarlyStopping.
+
+**Resultado k-fold:** 67.5% ± 1.7% de precisión global — muy cercano
+al 66.7% que se obtiene prediciendo siempre "glitch" (la clase
+mayoritaria, 2:1). Diagnóstico con matriz de confusión sobre un fold
+representativo:
+
+| | Predicho: Glitch | Predicho: BBH |
+|---|---|---|
+| **Real: Glitch** (16) | 14 | 2 |
+| **Real: BBH** (8) | 6 | 2 |
+
+Recall+ (detección real de eventos) = 25%, muy por debajo del 67.5%
+que logra el K-NN con las mismas 120 muestras.
+
+**Conclusión honesta:** con solo 96-120 muestras de entrenamiento, la
+CNN no tiene datos suficientes para que las capas convolucionales
+aprendan patrones útiles — el K-NN con 3 features artesanales
+generaliza mejor a esta escala. Esto es coherente con la literatura:
+las redes convolucionales típicamente requieren miles de ejemplos
+para superar métodos más simples. El modelo final (entrenado con
+todos los datos, sin held-out) llegó a 95%+ de "precisión" — clásico
+sobreajuste severo, no una métrica válida.
+
+**Decisión:** el K-NN (`deepwave_knn_real.py`) sigue siendo el
+clasificador recomendado para este proyecto en su estado actual. La
+CNN queda documentada como experimento con resultado negativo, útil
+para saber que el camino de "más complejidad de modelo" no ayuda
+mientras el dataset siga siendo pequeño — el camino real de mejora es
+ampliar el dataset (más eventos) o mejorar las features, no usar un
+modelo más grande.
