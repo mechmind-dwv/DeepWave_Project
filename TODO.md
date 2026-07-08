@@ -19,6 +19,30 @@
       en Termux (tflite-runtime no tiene wheel; no vale la pena
       reconstruir el forward-pass a mano para un modelo que no gana).
 
+
+## 🔬 Cadena de experimentos de features (7-8 julio 2026)
+
+- [x] Análisis de importancia de features: `pico_max` (+0.569),
+      `energia_media` (+0.348), `energia_baja` (+0.308) correlacionan
+      bien; `entropia_espectral`, `varianza`, `pendiente`, `num_picos`
+      son prácticamente ruido (|corr| < 0.11)
+- [x] v2 (8 features sin seleccionar): Recall+ máx 57.5% — PEOR que v1
+- [x] v3 (4 features seleccionadas por correlación): Recall+ máx 60.0% — 
+      sigue sin superar v1 (67.5%)
+- [x] **Conclusión con evidencia sólida (3 experimentos consistentes):**
+      el cuello de botella NO es el diseño de features univariadas.
+      Apunta a que un solo detector (H1) no lleva suficiente
+      información, independientemente de cómo se procese.
+
+### Próximo paso justificado: L1 como segundo detector
+- [ ] Verificar disponibilidad de L1 para los 40 eventos ya procesados
+- [ ] Generalizar `construir_dataset_real.py` para descargar y whitening
+      de H1+L1 en paralelo
+- [ ] Nueva feature: correlación cruzada H1-L1 en la ventana de 1s
+      (esto es, aproximadamente, lo que LIGO usa para confirmar
+      coincidencia real — la pieza que nos falta)
+- [ ] Repetir leave-one-out con features H1+L1 combinadas vs. solo H1
+
 ## 🟢 Prioridad baja / limpieza
 
 - [ ] Revisar el commit duplicado `0d4d7d0` / `3407589` en el historial
