@@ -336,3 +336,32 @@ dataset). El camino más honesto hacia adelante sería un análisis de
 importancia de features (ej. correlación individual de cada feature
 con la etiqueta) antes de añadir más, en vez de agregar más
 estadísticos a ciegas.
+
+## Selección de features por correlación (v3): tampoco rompe la meseta
+
+Se midió la correlación individual de cada una de las 8 features (v2)
+con la etiqueta real. Resultado: `pico_max` (+0.569), `energia_media`
+(+0.348), `energia_baja` (+0.308) mostraron correlación notable;
+`entropia_espectral`, `varianza_total`, `pendiente`, `num_picos`
+resultaron prácticamente ruido (|corr| < 0.11) — incluyendo
+`pendiente`, una de las 3 features originales de v1.
+
+Se construyó v3 con solo las 3-4 features útiles y se repitió el
+leave-one-out:
+
+| Versión | Mejor Recall+ | Recall- en ese punto |
+|---|---|---|
+| v1 (3 originales) | **67.5%** | 72.5% |
+| v2 (8, sin seleccionar) | 57.5% | 77.5-82.5% |
+| v3 (4, seleccionadas por correlación) | 60.0% | 77.5-80.0% |
+
+**Conclusión honesta:** ni v2 ni v3 superan a v1. Esto descarta la
+hipótesis de que el diseño de features sea el cuello de botella
+principal — la correlación individual no captura interacciones entre
+features, y es posible que el límite real sea más fundamental: un
+solo detector (H1) puede no llevar suficiente información
+discriminante, independientemente de cómo se procese. El siguiente
+paso lógico es incorporar el segundo detector (L1) y aprovechar la
+coincidencia temporal entre ambos — el método que LIGO usa realmente
+para confirmar eventos reales, y que nuestro pipeline actual no
+utiliza en absoluto.
