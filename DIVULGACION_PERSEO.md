@@ -301,3 +301,38 @@ para saber que el camino de "más complejidad de modelo" no ayuda
 mientras el dataset siga siendo pequeño — el camino real de mejora es
 ampliar el dataset (más eventos) o mejorar las features, no usar un
 modelo más grande.
+
+## Features enriquecidas (v2, 8 estadísticos): resultado honesto negativo
+
+Se probó ampliar las features de 3 a 8 (añadiendo energía por banda
+media/alta, varianza, entropía espectral, número de picos), sobre el
+mismo dataset real de 40 eventos, con la hipótesis de que el diseño
+de features —no el tamaño del dataset— era el cuello de botella.
+
+| Configuración | v1 (3 feat.) Recall+ | v2 (8 feat.) Recall+ |
+|---|---|---|
+| K=1, sin balancear | 40.0% | 42.5% |
+| K=3, sin balancear | 52.5% | 37.5% |
+| K=1, balanceado | **67.5%** | 57.5% |
+| K=3, balanceado | 65.0% | 57.5% |
+| K=5, balanceado | 57.5% | 47.5% |
+
+**Resultado honesto: v2 NO supera a v1.** En el mejor punto de
+operación de cada versión, v1 (67.5% Recall+) supera claramente a v2
+(57.5%). Esto contradice la hipótesis previa de que "más features
+romperían la meseta" — sugiere en cambio que algunas de las 5
+features nuevas (probablemente entropía espectral, que mostró muy
+poca variación entre clases incluso en datos sintéticos) añaden ruido
+dimensional que diluye la señal útil de las 3 features originales en
+el cálculo de distancia K-NN, en vez de aportar información nueva.
+
+**Conclusión honesta revisada:** el cuello de botella no es
+simplemente "pocas features" ni "pocos datos" por separado — es más
+probable que sea una combinación de dataset pequeño (imposibilita
+validar qué features realmente generalizan) y features que no fueron
+seleccionadas con un criterio estadístico riguroso (se diseñaron por
+intuición, no por selección de features basada en el propio
+dataset). El camino más honesto hacia adelante sería un análisis de
+importancia de features (ej. correlación individual de cada feature
+con la etiqueta) antes de añadir más, en vez de agregar más
+estadísticos a ciegas.
