@@ -365,3 +365,34 @@ paso lógico es incorporar el segundo detector (L1) y aprovechar la
 coincidencia temporal entre ambos — el método que LIGO usa realmente
 para confirmar eventos reales, y que nuestro pipeline actual no
 utiliza en absoluto.
+
+## Primer resultado positivo: correlación cruzada H1-L1 (coincidencia entre detectores)
+
+Tras 3 intentos sin éxito (MLP, features v2, features v3), se probó
+añadir la correlación cruzada temporal entre los dos detectores LIGO
+(H1 Hanford, L1 Livingston) — el principio real que usa LIGO para
+confirmar eventos genuinos, ausente hasta ahora en el pipeline.
+
+**Test estadístico (Mann-Whitney U, 37 eventos con H1+L1 disponibles):**
+correlación media en eventos reales = 0.148, en ruido = 0.129.
+**p-valor = 0.0025** — diferencia estadísticamente significativa.
+
+**Resultado en el K-NN** (mismo subconjunto de 37 eventos, v1=solo H1
+vs v4=H1+correlación H1-L1):
+
+| Config | v1 Recall+ | v4 Recall+ |
+|---|---|---|
+| K=1, balanceado | 59.5% | **67.6%** |
+| K=1, sin balancear | 45.9% | **59.5%** |
+
+**Conclusión honesta:** primera mejora consistente de la sesión.
+Aunque la correlación cruzada individual es estadísticamente
+significativa pero de magnitud modesta, combinada con las features
+espectrales originales mejora el Recall+ en 8-14 puntos porcentuales
+en los mejores puntos de operación. Esto confirma la hipótesis:
+un solo detector no lleva suficiente información — la coincidencia
+entre detectores, el método real de LIGO, sí aporta señal genuina.
+
+**Limitación:** 3 de 40 eventos no tienen H1 disponible (solo
+L1+Virgo ese día), así que esta comparación es sobre un subconjunto
+de 37, no los 40 completos.
