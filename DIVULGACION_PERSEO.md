@@ -450,3 +450,26 @@ vino de combinar **menos pero mejores features individuales** con
 no de acumular estadísticos del mismo espectrograma de un solo
 detector. Es el resultado más sólido de la sesión y el candidato a
 convertirse en el clasificador de referencia del proyecto.
+
+## Validación k-fold y ROC/AUC de v6: confirma la mejora, expone la inestabilidad
+
+**AUC:** v6 = 0.758, v1 = 0.754 — mejora marginal pero consistente con
+el Recall+ superior visto en leave-one-out (confirmación cruzada con
+método independiente).
+
+**K-fold estratificado (5 folds, K=1):** Recall+ media=60.7%,
+**std=28.4%** — rango de 14.3% a 87.5% entre folds. Esta inestabilidad
+extrema es consecuencia directa del tamaño de muestra: cada fold de
+prueba contiene solo 7-8 positivos, así que 1-2 casos difíciles
+pueden dominar el resultado de un fold completo.
+
+**Conclusión honesta:** el AUC (que promedia sobre todos los umbrales
+y usa leave-one-out, con 111 evaluaciones individuales) es la métrica
+más estable y confiable de las que tenemos. El k-fold de 5 particiones,
+aunque metodológicamente válido, es demasiado grueso para un dataset
+de este tamaño — sus resultados por fold individual no deben
+sobre-interpretarse. **La limitación de fondo de todo el proyecto
+sigue siendo el tamaño del dataset (37-40 eventos)**, no el método de
+clasificación ni las features elegidas. Cualquier futura ampliación
+del dataset (GWTC-3 completo, ~35 eventos más) sería la mejora que
+más reduciría esta inestabilidad, más que seguir refinando features.
