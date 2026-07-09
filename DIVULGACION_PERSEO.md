@@ -555,3 +555,15 @@ en **AUC≈0.72-0.75, Recall+≈50-55%** — un resultado honesto, muy por
 encima del azar (AUC=0.5), pero lejos de un sistema listo para
 detección profesional (que requeriría matched filtering, bancos de
 templates, y miles de eventos de entrenamiento).
+
+**Intervalo de confianza bootstrap (2000 remuestreos, v1, n=75+150):**
+
+**AUC = 0.728 (IC 95%: 0.653–0.797)**
+
+El límite inferior del IC (0.653) confirma que el modelo aporta señal
+real, claramente por encima del azar (0.5), incluso en el escenario
+más conservador. El límite superior (0.797) recuerda que la
+incertidumbre restante es considerable — no se puede descartar que el
+verdadero rendimiento sea sustancialmente más modesto que el AUC
+puntual sugiere. Este intervalo, no el número puntual aislado, es el
+reporte metodológicamente correcto del rendimiento del baseline.
