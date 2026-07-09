@@ -43,6 +43,28 @@
       coincidencia real — la pieza que nos falta)
 - [ ] Repetir leave-one-out con features H1+L1 combinadas vs. solo H1
 
+
+## 🏆 Clasificador de referencia consolidado (8 julio 2026)
+
+- [x] v6 identificado como mejor resultado: 2 features selectas
+      (pico_max, energia_media) + correlación H1-L1 amplia → 
+      Recall+ = 70.3% (vs 67.5% de v1 original)
+- [x] `DeepWaveKNNReferencia`: clasificador dual, honesto sobre
+      disponibilidad de detectores — modo dual (H1+L1, más preciso)
+      degrada a modo simple (solo H1) sin inventar datos faltantes
+- [x] Entrenado con el 100% del dataset real (40 eventos simple,
+      37 eventos dual) — listo para uso, no solo validación
+
+### Pendiente para consolidar del todo (próxima sesión)
+- [ ] Validación k-fold del clasificador de referencia (no solo
+      leave-one-out) para estimar varianza del Recall+ con más rigor
+- [ ] Curva ROC/AUC específica para v6 (la actual, AUC=0.754, es de v1)
+- [ ] Conectar `dashboard.py` a este clasificador de referencia en vez
+      del K-NN simple actual (requiere generar señal L1 sintética o
+      permitir subir 2 señales cuando el usuario quiera modo dual)
+- [ ] Decidir: ¿fusionar esta rama completa a `desarrollo` ya, o seguir
+      un ciclo más de experimentos antes de integrar?
+
 ## 🟢 Prioridad baja / limpieza
 
 - [ ] Revisar el commit duplicado `0d4d7d0` / `3407589` en el historial
