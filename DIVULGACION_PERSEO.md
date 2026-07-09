@@ -396,3 +396,29 @@ entre detectores, el método real de LIGO, sí aporta señal genuina.
 **Limitación:** 3 de 40 eventos no tienen H1 disponible (solo
 L1+Virgo ese día), así que esta comparación es sobre un subconjunto
 de 37, no los 40 completos.
+
+## Refinamiento de la correlación H1-L1: mejor p-valor no implica mejor clasificador
+
+Se probó restringir la búsqueda de correlación cruzada a la ventana
+físicamente plausible (±10ms, tiempo de viaje de la luz entre
+Hanford y Livingston), en vez de buscar en toda la ventana de 1s.
+
+**Resultado del test estadístico:** mejora dramática (p=0.0025 →
+p≈0.0000; separación de medias 0.148/0.129 → 0.128/0.085).
+
+**Resultado en el K-NN (Recall+, mismo subconjunto de 37 eventos):**
+
+| Config | v1 (solo H1) | v4 (corr. amplia) | v5 (corr. restringida) |
+|---|---|---|---|
+| K=1, balanceado | 59.5% | **67.6%** | 62.2% |
+| K=3, sin balancear | 43.2% | 40.5% | 48.6% |
+
+**Conclusión honesta:** v5, pese a tener un p-valor muchísimo mejor,
+**no supera a v4** en el punto de operación principal. La versión
+restringida separa mejor las medias poblacionales, pero tiene mayor
+dispersión relativa (std=0.049 vs 0.038), lo que puede confundir al
+K-NN en decisiones caso-por-caso. Lección metodológica: un test de
+significancia (p-valor) mide si una diferencia es real, no si esa
+feature es más útil para un clasificador — son preguntas distintas.
+Se conserva v4 (correlación de ventana amplia) como la versión en
+uso, dado su mejor desempeño práctico medido con leave-one-out.
