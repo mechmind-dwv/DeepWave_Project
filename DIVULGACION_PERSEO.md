@@ -501,3 +501,40 @@ rango honesto, no un número único inflado. v1 (solo H1) sigue siendo
 competitivo (AUC=0.754 vs 0.708 de v6 en el dataset ampliado), lo
 que sugiere que la correlación H1-L1 aporta menos de lo que el
 resultado inicial con 37 eventos sugería.
+
+## Veredicto final: v1 y v6 convergen, sin ganador claro (75 eventos)
+
+Comparación metodológicamente justa (mismo protocolo k-fold + AUC,
+máximo de datos disponible para cada versión):
+
+| | v1 (75 eventos, solo H1) | v6 (68 eventos, H1+L1) |
+|---|---|---|
+| AUC | 0.728 | 0.708 |
+| Recall+ k-fold (media ± std) | 50.7% ± 9.0% | 54.3% ± 8.9% |
+| Global k-fold (media) | 68.0% | 65.6% |
+
+**Conclusión honesta y definitiva de la cadena de experimentos:**
+v1 y v6 son estadísticamente indistinguibles con este tamaño de
+dataset — la diferencia observada está dentro del margen de ruido
+(std≈9% en ambos). La correlación H1-L1, aunque estadísticamente
+significativa como variable aislada (p≈0.0000), no se traduce en una
+mejora práctica sustancial del clasificador una vez controlado el
+efecto de tamaño de muestra.
+
+**También se revisa la cifra de referencia previa:** el AUC=0.754
+reportado con 40 eventos también estaba modestamente inflado por
+varianza de muestra pequeña — el valor más confiable ahora, con 75
+eventos, es **AUC≈0.73**.
+
+**Recomendación de ingeniería:** usar v1 (solo H1) como clasificador
+de referencia por simplicidad — evita la complejidad de manejar dos
+detectores y el modo dual, sin sacrificar rendimiento real. v6 queda
+documentado como un experimento válido que no demostró ventaja
+suficiente para justificar su complejidad adicional.
+
+**El techo real del proyecto** con el método actual (K-NN, 3-4
+features espectrales simples, ~75-150 eventos reales) parece estar
+en **AUC≈0.72-0.75, Recall+≈50-55%** — un resultado honesto, muy por
+encima del azar (AUC=0.5), pero lejos de un sistema listo para
+detección profesional (que requeriría matched filtering, bancos de
+templates, y miles de eventos de entrenamiento).
