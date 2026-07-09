@@ -422,3 +422,31 @@ significancia (p-valor) mide si una diferencia es real, no si esa
 feature es más útil para un clasificador — son preguntas distintas.
 Se conserva v4 (correlación de ventana amplia) como la versión en
 uso, dado su mejor desempeño práctico medido con leave-one-out.
+
+## v6: mejor resultado de la sesión (combinando hallazgos previos)
+
+Se combinaron los dos hallazgos positivos de la cadena de
+experimentos: las 2 features individuales con mayor correlación
+(`pico_max`=+0.569, `energia_media`=+0.348) más la correlación
+cruzada H1-L1 de ventana amplia (v4).
+
+**Resultado (K=1 balanceado, subconjunto de 37 eventos con H1+L1):**
+Recall+ = **70.3%**, Global = 73.0%, Recall- = 75.7%.
+
+| Versión | # Features | Mejor Recall+ |
+|---|---|---|
+| v1 (original) | 3 | 67.5% |
+| v2 (sin seleccionar) | 8 | 57.5% |
+| v3 (seleccionadas por correlación) | 4 | 60.0% |
+| v4 (v1 + corr. H1-L1 amplia) | 4 | 67.6% |
+| v5 (v1 + corr. H1-L1 restringida) | 4 | 62.2% |
+| **v6 (2 selectas + corr. H1-L1)** | **3** | **70.3%** |
+
+**Conclusión de la cadena completa:** ni "más features" (v2) ni
+"features seleccionadas por correlación individual sin combinar con
+detección multi-detector" (v3) mejoraron el resultado. La mejora real
+vino de combinar **menos pero mejores features individuales** con
+**información genuinamente nueva** (coincidencia entre detectores),
+no de acumular estadísticos del mismo espectrograma de un solo
+detector. Es el resultado más sólido de la sesión y el candidato a
+convertirse en el clasificador de referencia del proyecto.
