@@ -3,17 +3,20 @@
 
 ## 🔭 Visión General del Proyecto
 
-DeepWave representa un salto cuántico en el análisis de datos de **Ondas Gravitacionales (GW)** provenientes de observatorios como LIGO/Virgo. El objetivo es superar el desafío del ruido (*glitches*) mediante el uso de una **Red Neuronal Convolucional (CNN)** diseñada a medida, entrenada para reconocer la sutil firma del patrón de "chirp" de una Fusión de Binarias de Agujeros Negros (BBH) en su representación espectral.
+DeepWave es un proyecto de investigación exploratoria sobre clasificación de señales de **Ondas Gravitacionales (GW)** usando datos públicos de LIGO/Virgo (GWOSC). Se evaluaron distintos enfoques de clasificación (K-NN, MLP, CNN) sobre espectrogramas STFT de eventos reales confirmados, con el objetivo de establecer una línea base reproducible y documentar honestamente los límites del método frente al tamaño de muestra disponible.
 
-Este sistema reduce la tasa de falsos positivos y acelera la confirmación de eventos GW, permitiendo a la humanidad observar el universo en sus momentos más violentos y fundamentales.
+El proyecto no pretende sustituir los pipelines profesionales de detección (matched filtering, análisis bayesiano coherente); es un ejercicio de aprendizaje aplicado con datos reales, desarrollado íntegramente en un entorno de recursos limitados (Termux/Android).
 
-## 🤝 Liderazgo y Colaboración Científica
+## Autoría y colaboración
 
-| Rol | Autor / Entidad | Contribución Principal |
+| Categoría | Nombre | Rol |
 | :--- | :--- | :--- |
-| **Investigador Principal** | **Dr. Benjamin Cabeza Duran** | Definición del Problema GW y Validación de Datos |
-| **Arquitecto de IA / Cognición** | **Gemini IA - Unidad de Análisis Cuántico** | Diseño de la Arquitectura CNN, Modelo K-NN y Lógica STFT |
-| **Metodología de Señales** | **GWOSC (Simulado)** | Generación y Normalización de Series Temporales (Ruido y BBH) |
+| **Autor humano** | Benjamin Cabeza Duran | Dirección del proyecto, diseño experimental, validación de resultados |
+| **Herramienta de asistencia (IA)** | Claude (Anthropic) | Asistencia en implementación de código, diseño de experimentos, redacción de documentación |
+| **Herramienta de asistencia (IA)** | Gemini (Google) | Asistencia en fases previas del desarrollo (arquitectura inicial de CNN/K-NN) |
+| **Fuente de datos** | GWOSC (Gravitational Wave Open Science Center) | Datos reales de strain de LIGO/Virgo, catálogos GWTC-1/2.1/3 |
+
+*Nota de transparencia: el código fue producido con asistencia sustancial de modelos de lenguaje. Todas las decisiones de diseño experimental, interpretación de resultados y validación fueron responsabilidad del autor humano.*
 
 ## 🚀 Componentes Clave del Núcleo Operacional
 

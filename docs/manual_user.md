@@ -1,166 +1,69 @@
-# 🎉 DEEPWAVE v1.0 COMPLETO - SISTEMA DE DETECCIÓN DE ONDAS GRAVITACIONALES CON IA
+# 🌌 DeepWave — Manual de Usuario
 
-¡Proyecto completado exitosamente! El sistema está listo para la detección de ondas gravitacionales usando técnicas avanzadas de IA.
+Sistema de clasificación de señales de ondas gravitacionales (BBH vs.
+Glitch), desarrollado y validado íntegramente en Termux/Android.
 
-## 🚀 **Inicio Rápido**
+## 🚀 Inicio Rápido
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/MechMind-dwv/DeepWave_Project.git
+git clone https://github.com/mechmind-dwv/DeepWave_Project.git
 cd DeepWave_Project
-
-# 2. Verificar dependencias
-python scripts/check_deps.py
-
-# 3. Ejecutar el sistema
-python run_deepwave.py
-```
-
-## 🌐 **Dashboard Web**
-
-Accede al dashboard interactivo:
-```bash
-cd DeepWave_Project
-python codigo_fuente/dashboard.py
+pip install -r requirements.txt --break-system-packages
+python dashboard.py
 ```
 Luego abre: `http://localhost:5000`
 
-## 🏗️ **Arquitectura del Sistema**
+## 🏗️ Arquitectura Real (verificada)
 
-### **Módulos Principales:**
-1. **deepwave_core.py** - K-NN para clasificación rápida
-2. **deepwave_preprocessing.py** - STFT para espectrogramas
-3. **deepwave_classifier_cnn.py** - CNN profunda para detección
-4. **dashboard.py** - Interface web interactiva
+| Módulo | Estado | Descripción |
+|---|---|---|
+| `deepwave_preprocessing.py` | ✅ Funcional | STFT: señal (2048 pts) → espectrograma (103×19) |
+| `deepwave_core.py` | ✅ Funcional (juguete) | K-NN con 3 features hardcodeadas, ilustrativo |
+| `deepwave_knn_real.py` | ✅ Funcional y validado | K-NN con features reales del espectrograma |
+| `deepwave_classifier_cnn_real.py` | ⚠️ Arquitectura definida, **sin entrenar** | Requiere TensorFlow (no disponible en Termux) |
+| `deepwave_whitening_real.py` | ✅ Funcional y validado | Whitening real (PSD Welch + Butterworth) sobre datos GWOSC |
+| `dashboard.py` | ⚠️ Funcional en **modo demostración** | Import roto a módulos inexistentes; usa resultados aleatorios, no el clasificador real |
 
-### **Flujo de Trabajo:**
-```
-Datos GW → Preprocesamiento STFT → Clasificación K-NN → Análisis CNN → Dashboard
-```
+## 🧪 Validación Científica Real (no simulada)
 
-## 📊 **Características Principales**
+Se validó `deepwave_knn_real.py` contra datos públicos reales de LIGO
+(evento GW150914), tras aplicar whitening real:
 
-### **Detección en Tiempo Real:**
-- Clasificación BBH vs Glitch en segundos
-- Espectrogramas de alta resolución (103x19)
-- Análisis estadístico automático
+| Segmento | Naturaleza | Predicción | Confianza |
+|---|---|---|---|
+| GW150914 (evento) | Real (LIGO) | FUSIÓN BBH | 100% |
+| Ruido -1000s | Real (LIGO) | GLITCH | 100% |
+| Ruido +500s | Real (LIGO) | GLITCH | 100% |
 
-### **Modelos de IA:**
-- **K-Nearest Neighbors**: Clasificación rápida inicial
-- **CNN Profunda**: 4 capas Conv2D + Pooling + Dropout
-- **Validación Cruzada**: Precisión >85% en datos simulados
+**Límites honestos:** N=1 evento positivo, K=5 vecinos, sin curva
+ROC/AUC. Es una prueba de concepto con estructura de control
+apropiada, no una validación estadística robusta ni un resultado
+listo para publicación científica. Ver `DIVULGACION_PERSEO.md` para
+la metodología completa.
 
-### **Dashboard Avanzado:**
-- Gráficos interactivos con Plotly
-- Visualización de waveform y espectrogramas
-- Panel de análisis en tiempo real
-- API REST para integración
+## ⚠️ Pendientes conocidos
 
-## 🔧 **Configuración Avanzada**
+1. `dashboard.py` no está conectado al clasificador real — corre en
+   modo demo con resultados aleatorios.
+2. No existe ningún modelo CNN entrenado (`models/` está vacío).
+   Entrenar `train_cnn.py` requiere un entorno con TensorFlow
+   (Google Colab o PC), no funciona en Termux.
+3. Solo se ha validado contra 1 evento real (GW150914). Ampliar a
+   más eventos (GW170814, GW190521) daría una validación más sólida.
 
-### **Entornos Soportados:**
-- ✅ Termux/Android (sin root)
-- ✅ Linux/macOS
-- ✅ Windows con WSL
-
-### **Requisitos del Sistema:**
-```bash
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Verificar instalación
-python scripts/check_deps.py --full
-```
-
-## 📁 **Estructura del Proyecto**
+## 📁 Estructura del Proyecto
 
 ```
 DeepWave_Project/
-├── codigo_fuente/          # Módulos principales de IA
-├── data/                   # Datos y modelos entrenados
-├── scripts/               # Utilidades y mantenimiento
-├── templates/             # Interface web HTML
-├── docs/                  # Documentación científica
-└── requirements.txt       # Dependencias Python
+├── codigo_fuente/     # Módulos de procesamiento y clasificación
+├── data/              # Datos reales descargados + procesados (.npy)
+├── docs/              # Este manual
+├── templates/         # Interfaz web (dashboard.html)
+├── dashboard.py        # Panel interactivo (Flask + Plotly)
+└── requirements.txt
 ```
-
-## 🎯 **Casos de Uso**
-
-### **1. Análisis de Datos Simulados:**
-```python
-from codigo_fuente.deepwave_core import DeepWaveClassifier
-clf = DeepWaveClassifier()
-result = clf.analyze_signal(signal_data)
-```
-
-### **2. Entrenamiento Personalizado:**
-```bash
-python codigo_fuente/deepwave_classifier_cnn.py --train --epochs 50
-```
-
-### **3. API REST para Integración:**
-```bash
-curl -X POST http://localhost:5000/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"signal": [0.1, 0.2, ...]}'
-```
-
-## 🧪 **Validación Científica**
-
-El sistema utiliza metodología GWOSC simulada con:
-- Datos de fusiones BBH (Binary Black Holes)
-- Eventos glitch para contraste
-- Validación cruzada 5-fold
-- Métricas: Precisión, Recall, F1-Score
-
-## 🔄 **Mantenimiento**
-
-### **Backup Automático:**
-```bash
-./scripts/backup_project.sh
-```
-
-### **Limpieza Inteligente:**
-```bash
-./scripts/safe_clean.sh
-```
-
-### **Actualización GitHub:**
-```bash
-./scripts/config_github.sh
-```
-
-## 📈 **Rendimiento**
-
-- **Tiempo de inferencia**: < 2 segundos por señal
-- **Precisión K-NN**: ~82% en validación cruzada
-- **Precisión CNN**: ~87% en conjunto de prueba
-- **Uso de memoria**: < 500MB en inferencia
-
-## 🤝 **Contribución**
-
-El proyecto está abierto para:
-1. Mejoras en los algoritmos de IA
-2. Integración con datos GWOSC reales
-3. Optimización del dashboard
-4. Documentación científica
-
-## 📚 **Recursos**
-
-- **Documentación**: `docs/` (en desarrollo)
-- **Repositorio**: https://github.com/MechMind-dwv/DeepWave_Project
-- **Dashboard Online**: https://mechmind-dwv.github.io/DeepWave_Project/
-- **Dataset de ejemplo**: Incluido en `data/original_distribution/`
-
-## ⚠️ **Notas Importantes**
-
-1. **Datos Simulados**: Sistema usa datos sintéticos para desarrollo
-2. **Producción**: Requiere datos reales LIGO/Virgo para uso científico
-3. **Rendimiento**: Optimizado para dispositivos móviles/limitados
-4. **Licencia**: Ver LICENSE para detalles de uso
 
 ---
-
-**✨ ¡Sistema listo para explorar el universo a través de ondas gravitacionales! ✨**
-
-*Último commit: ab8bbb2fdae14a27f4f511cfdcddc890f22b659b*
+*Este manual refleja el estado real y verificado del proyecto al
+5 de julio de 2026. Reemplaza una versión anterior que incluía
+métricas de precisión no verificadas.*

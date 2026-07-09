@@ -20,12 +20,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Importar módulos DeepWave
 try:
-    from codigo_fuente.deepwave_core import WaveAnalyzer
-    from codigo_fuente.deepwave_preprocessing import generate_spectrogram
+    from codigo_fuente.deepwave_preprocessing import calcular_espectrograma_stub
+    from codigo_fuente.deepwave_knn_real import DeepWaveKNNReal, extraer_features
     DEEPWAVE_AVAILABLE = True
 except ImportError:
     DEEPWAVE_AVAILABLE = False
     print("⚠️  Módulos DeepWave no disponibles, usando modo demostración")
+
+RUTA_GW150914_REAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "gw150914_whitened_real.npy")
+FS_REAL = 2048
 
 app = Flask(__name__)
 
@@ -33,7 +36,13 @@ class DeepWaveDashboard:
     """Clase principal del dashboard"""
     
     def __init__(self):
-        self.analyzer = WaveAnalyzer() if DEEPWAVE_AVAILABLE else None
+        self.clasificador = None
+        self.ultima_senal = None
+        self.ultimo_espectrograma = None
+        if DEEPWAVE_AVAILABLE:
+            self.clasificador = DeepWaveKNNReal(k=5)
+            self.clasificador.entrenar(n_samples=200)
+            print("✅ Clasificador K-NN real entrenado (datos sintéticos etiquetados).")
         self.analysis_history = []
         self.stats = {
             "total_analyses": 0,
@@ -42,16 +51,34 @@ class DeepWaveDashboard:
             "accuracy": 0.0
         }
     
+    def _generar_senal(self, amplitude, frequency, persistence, duracion_s=1, fs=FS_REAL):
+        """Genera una señal sintética real a partir de los parámetros del
+        usuario, para clasificarla con el K-NN real (no es un número
+        aleatorio, es una señal STFT-analizable de verdad)."""
+        t = np.linspace(0, duracion_s, int(fs * duracion_s), endpoint=False)
+        variacion = (1.0 - persistence) * 80
+        fase = 2 * np.pi * (frequency * t + variacion * t**2 / 2)
+        senal = amplitude * np.sin(fase)
+        senal += (1.0 - persistence) * 0.4 * np.random.normal(size=t.shape)
+        return senal
+
     def analyze_signal(self, amplitude=0.5, frequency=100, persistence=0.5):
-        """Analiza una señal con parámetros dados"""
-        if self.analyzer:
-            # Usar el analizador real
-            result = self.analyzer.analyze_waveform(amplitude, frequency, persistence)
-            is_bbh = "FUSIÓN" in result
+        """Analiza una señal generada a partir de los parámetros dados,
+        usando el clasificador K-NN real sobre su espectrograma STFT."""
+        if self.clasificador:
+            senal = self._generar_senal(amplitude, frequency, persistence)
+            espectrograma = calcular_espectrograma_stub(senal, FS_REAL)
+            features = extraer_features(espectrograma)
+            prediccion, confianza_knn = self.clasificador.predecir(features)
+            is_bbh = bool(prediccion == 1)
+            result = "FUSIÓN BBH" if is_bbh else "GLITCH"
+            self.ultima_senal = senal
+            self.ultimo_espectrograma = espectrograma
         else:
-            # Modo demostración
+            # Modo demostración (clasificador no disponible)
             result = "FUSIÓN BBH" if frequency < 80 else "GLITCH"
             is_bbh = "FUSIÓN" in result
+            confianza_knn = np.random.uniform(0.7, 0.99) if is_bbh else np.random.uniform(0.3, 0.6)
         
         analysis = {
             "id": len(self.analysis_history) + 1,
@@ -61,7 +88,7 @@ class DeepWaveDashboard:
             "persistence": persistence,
             "result": result,
             "is_bbh": is_bbh,
-            "confidence": np.random.uniform(0.7, 0.99) if is_bbh else np.random.uniform(0.3, 0.6)
+            "confidence": float(confianza_knn)
         }
         
         self.analysis_history.append(analysis)
@@ -80,29 +107,32 @@ class DeepWaveDashboard:
             self.stats["accuracy"] = (self.stats["bbh_detections"] / self.stats["total_analyses"]) * 100
     
     def generate_waveform_plot(self):
-        """Genera gráfico de forma de onda"""
-        t = np.linspace(0, 2*np.pi, 1000)
-        
-        # Señal BBH típica (chirp)
+        """Genera gráfico de forma de onda a partir de la señal REAL
+        usada en el último análisis (no una réplica aleatoria)."""
+        if self.ultima_senal is not None:
+            wave = self.ultima_senal
+            t = np.linspace(0, 1, len(wave))
+        else:
+            t = np.linspace(0, 2*np.pi, 1000)
+            wave = np.sin(100 * t) * 0.3 + np.random.normal(0, 0.1, 1000)
+
         if self.analysis_history and self.analysis_history[-1]["is_bbh"]:
-            freq = self.analysis_history[-1]["frequency"]
-            wave = np.sin(freq * t * (1 + 0.1 * t)) * self.analysis_history[-1]["amplitude"]
             color = "#FF6B6B"  # Rojo para BBH
             name = "Señal BBH (Chirp)"
         else:
-            # Ruido + señal débil
-            wave = np.sin(100 * t) * 0.3 + np.random.normal(0, 0.1, 1000)
             color = "#4ECDC4"  # Turquesa para glitch
             name = "Señal + Ruido"
         
         fig = go.Figure()
+        # Calcular color rgba para relleno
+        r, g, b = int(color[1:3],16), int(color[3:5],16), int(color[5:7],16)
         fig.add_trace(go.Scatter(
             x=t, y=wave,
             mode='lines',
             name=name,
             line=dict(color=color, width=3),
             fill='tozeroy',
-            fillcolor=f'{color}20'
+            fillcolor=f'rgba({r},{g},{b},0.125)'
         ))
         
         fig.update_layout(
@@ -116,23 +146,14 @@ class DeepWaveDashboard:
         return fig.to_json()
     
     def generate_spectrogram_plot(self):
-        """Genera espectrograma simulado"""
-        # Datos para espectrograma
-        fs = 1000  # Frecuencia de muestreo
-        t = np.linspace(0, 1, fs)
-        
-        if self.analysis_history and self.analysis_history[-1]["is_bbh"]:
-            # Espectrograma de chirp BBH (frecuencia aumenta)
-            f0 = 30
-            f1 = 200
-            chirp = np.sin(2 * np.pi * (f0 * t + (f1 - f0) * t**2 / 2))
-            signal = chirp * self.analysis_history[-1]["amplitude"]
+        """Genera el espectrograma REAL calculado en el último análisis
+        (STFT real vía calcular_espectrograma_stub, no una simulación)."""
+        if self.ultimo_espectrograma is not None:
+            spectrogram = self.ultimo_espectrograma
         else:
-            # Espectrograma de ruido
+            fs = 1000
             signal = np.random.randn(fs) * 0.5
-        
-        # Espectrograma simple
-        spectrogram = np.abs(np.fft.fft(signal).reshape(20, 50))
+            spectrogram = np.abs(np.fft.fft(signal).reshape(20, 50))
         
         fig = go.Figure(data=go.Heatmap(
             z=spectrogram,
@@ -172,7 +193,7 @@ class DeepWaveDashboard:
             theta=categories,
             fill='toself',
             line_color='#FF6B6B' if latest["is_bbh"] else '#4ECDC4',
-            fillcolor='#FF6B6B40' if latest["is_bbh"] else '#4ECDC440',
+            fillcolor='rgba(255,107,107,0.25)' if latest["is_bbh"] else 'rgba(78,205,196,0.25)',
             name="Características de la señal"
         ))
         
