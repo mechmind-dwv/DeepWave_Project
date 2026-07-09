@@ -516,15 +516,32 @@ máximo de datos disponible para cada versión):
 **Conclusión honesta y definitiva de la cadena de experimentos:**
 v1 y v6 son estadísticamente indistinguibles con este tamaño de
 dataset — la diferencia observada está dentro del margen de ruido
-(std≈9% en ambos). La correlación H1-L1, aunque estadísticamente
-significativa como variable aislada (p≈0.0000), no se traduce en una
-mejora práctica sustancial del clasificador una vez controlado el
-efecto de tamaño de muestra.
+(std≈9% en ambos). No hay evidencia suficiente para afirmar que una
+arquitectura supere a la otra únicamente con estos resultados.
 
-**También se revisa la cifra de referencia previa:** el AUC=0.754
-reportado con 40 eventos también estaba modestamente inflado por
-varianza de muestra pequeña — el valor más confiable ahora, con 75
-eventos, es **AUC≈0.73**.
+**Matiz importante sobre el alcance de esta conclusión:** que la
+correlación H1-L1 no mejore *esta implementación concreta* (una
+única feature de correlación cruzada temporal, alimentando un K-NN
+con features espectrales simples) NO implica que la información
+conjunta de múltiples detectores carezca de utilidad en general. En
+los pipelines profesionales de LIGO/Virgo, la coincidencia entre
+detectores es central para la confirmación de eventos reales, pero
+se explota con técnicas mucho más sofisticadas — coincidencia
+temporal precisa, matched filtering, estimación bayesiana, análisis
+coherente multi-detector — no añadiendo una sola característica
+resumen a un clasificador simple. La conclusión aquí es acotada:
+"con este método y este dato no hubo mejora reproducible", no "la
+información H1-L1 no sirve".
+
+**También se revisa la cifra de referencia previa:** el descenso de
+AUC≈0.754 (40 eventos) a AUC≈0.728 (75 eventos) es coherente con un
+efecto esperado de estimación en muestras pequeñas — no implica que
+el modelo haya empeorado, sino que la estimación anterior era menos
+robusta y más optimista. El resultado más importante metodológicamente
+no es el valor puntual de AUC, sino que el comportamiento del modelo
+se ha estabilizado al aumentar el tamaño de muestra (std del k-fold
+bajó de 28.4% a 8.9-9.0% en ambas versiones) — esa estabilización es
+la señal real de que ahora tenemos una estimación confiable.
 
 **Recomendación de ingeniería:** usar v1 (solo H1) como clasificador
 de referencia por simplicidad — evita la complejidad de manejar dos
