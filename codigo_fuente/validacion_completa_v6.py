@@ -27,7 +27,10 @@ def cargar_dataset_v6():
     with open(os.path.join(DATA_DIR, "eventos_procesados.json")) as f:
         registro = json.load(f)
     eventos_todos = registro["eventos_procesados"]
-    excluidos = ["GW190620_030421-v2", "GW190630_185205-v2", "GW190708_232457-v2"]
+    excluidos = ["GW190620_030421-v2", "GW190630_185205-v2", "GW190708_232457-v2",
+                 "GW191216_213338-v1", "GW200112_155838-v1", "GW200202_154313-v1",
+                 "GW200302_015811-v1"]  # GW200202 excluido: su correlación se calculó
+                 # en un reintento aislado que nunca se guardó en el .npy
     eventos_con_hl = [e for e in eventos_todos if e not in excluidos]
 
     positivos = np.load(os.path.join(DATA_DIR, "dataset_real_positivos.npy"))

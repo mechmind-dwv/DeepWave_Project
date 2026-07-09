@@ -473,3 +473,31 @@ sigue siendo el tamaño del dataset (37-40 eventos)**, no el método de
 clasificación ni las features elegidas. Cualquier futura ampliación
 del dataset (GWTC-3 completo, ~35 eventos más) sería la mejora que
 más reduciría esta inestabilidad, más que seguir refinando features.
+
+## Dataset duplicado (37→68 eventos con H1+L1): la estabilidad revela la verdad
+
+Al casi duplicar el dataset (GWTC-3 añadido), se repitió la
+validación de v6:
+
+| Métrica | 37 eventos | 68 eventos |
+|---|---|---|
+| AUC | 0.758 | 0.708 |
+| Recall+ k-fold (media) | 60.7% | 54.3% |
+| Recall+ k-fold (std) | 28.4% | **8.9%** |
+
+**Conclusión honesta y más importante de la sesión:** el AUC de 0.758
+y el Recall+ de 70.3% obtenidos con 37 eventos estaban probablemente
+**inflados por varianza de muestra pequeña** — la std de 28.4% ya lo
+advertía. Con 68 eventos, la estimación es más baja pero mucho más
+confiable (std=8.9%, tres veces menor). Esta es la razón por la que
+la validación rigurosa (k-fold, no solo un leave-one-out puntual) y
+la ampliación del dataset son más valiosas que seguir afinando
+features: un resultado "mejor" en una muestra pequeña puede
+simplemente ser ruido que desaparece con más datos.
+
+**Estado real del proyecto:** el clasificador v6 (H1+L1) da Recall+
+≈54-67% dependiendo de la muestra y el método de validación — un
+rango honesto, no un número único inflado. v1 (solo H1) sigue siendo
+competitivo (AUC=0.754 vs 0.708 de v6 en el dataset ampliado), lo
+que sugiere que la correlación H1-L1 aporta menos de lo que el
+resultado inicial con 37 eventos sugería.
