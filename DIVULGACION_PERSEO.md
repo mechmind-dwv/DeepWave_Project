@@ -567,3 +567,15 @@ incertidumbre restante es considerable — no se puede descartar que el
 verdadero rendimiento sea sustancialmente más modesto que el AUC
 puntual sugiere. Este intervalo, no el número puntual aislado, es el
 reporte metodológicamente correcto del rendimiento del baseline.
+
+**Intervalo de confianza bootstrap (2000 remuestreos, v1, n=75+150):**
+
+**AUC = 0.728 (IC 95%: 0.653–0.797)**
+
+El límite inferior del IC (0.653) confirma que el modelo aporta señal
+real, claramente por encima del azar (0.5), incluso en el escenario
+más conservador. El límite superior (0.797) recuerda que la
+incertidumbre restante es considerable — no se puede descartar que el
+verdadero rendimiento sea sustancialmente más modesto que el AUC
+puntual sugiere. Este intervalo, no el número puntual aislado, es el
+reporte metodológicamente correcto del rendimiento del baseline.
