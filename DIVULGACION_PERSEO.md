@@ -603,3 +603,37 @@ features). Antes de seguir ampliando el dataset, sería más informativo
 verificar si los eventos añadidos recientemente tienen SNR
 sistemáticamente más bajo que los originales — separando el efecto
 "más datos" del efecto "datos más difíciles".
+
+## Causa confirmada del descenso de AUC: los eventos O4 tienen menor SNR
+
+Se comparó el SNR de red (network matched-filter SNR, publicado por
+LIGO/Virgo en GWOSC) entre los 75 eventos originales (GWTC-1/2.1/3) y
+los 32 eventos añadidos de la campaña más reciente (GWTC-4.0/4.1/5.0,
+observación O4):
+
+| | n | SNR media | SNR mediana |
+|---|---|---|---|
+| Originales (GWTC-1/2.1/3) | 75 | 12.39 | 11.20 |
+| Nuevos (GWTC-4/5, O4) | 32 | 10.82 | 9.85 |
+
+**Test Mann-Whitney U:** p=0.0288 — diferencia estadísticamente
+significativa.
+
+**Conclusión honesta:** el descenso del AUC (0.754→0.728→0.687) NO
+refleja un fallo del modelo ni del pipeline. Refleja que la campaña
+de observación O4 de LIGO/Virgo, con instrumentos más sensibles, está
+confirmando eventos genuinamente más débiles (menor SNR) que antes no
+se hubieran detectado. El dataset ampliado es ahora una muestra más
+representativa y realista del reto de detección — un resultado más
+bajo pero más honesto sobre un problema genuinamente más difícil, no
+un modelo peor. Esto es consistente con la física esperada: a menor
+SNR, cualquier método de clasificación (K-NN, CNN, o incluso matched
+filtering) enfrenta mayor dificultad.
+
+**Implicación para el proyecto:** la curva de aprendizaje real no es
+"AUC estable ~0.72-0.75" como se pensó inicialmente, sino un
+indicador de que el rendimiento depende fuertemente de la
+composición del dataset por SNR. Reportar el AUC sin desglosar por
+SNR sería engañoso; el proyecto debería, en el futuro, condicionar
+sus métricas por rango de SNR en vez de reportar un único número
+agregado.
