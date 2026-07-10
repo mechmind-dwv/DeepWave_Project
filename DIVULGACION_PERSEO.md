@@ -579,3 +579,27 @@ incertidumbre restante es considerable — no se puede descartar que el
 verdadero rendimiento sea sustancialmente más modesto que el AUC
 puntual sugiere. Este intervalo, no el número puntual aislado, es el
 reporte metodológicamente correcto del rendimiento del baseline.
+
+## Curva de aprendizaje real: el AUC BAJA de forma consistente, no se estabiliza
+
+| Positivos | AUC | IC95% |
+|---|---|---|
+| 40 | 0.754 | — |
+| 75 | 0.728 | 0.653–0.797 |
+| 107 | 0.687 | 0.623–0.747 |
+
+**Hallazgo honesto e importante:** el AUC desciende de forma
+consistente en 3 puntos consecutivos, no se estabiliza. Esto es
+distinto de lo esperado si el descenso previo (754→728) fuera solo
+efecto de estimación en muestra pequeña — de ser así, el AUC debería
+estabilizarse, no seguir cayendo.
+
+**Hipótesis a investigar:** los eventos añadidos en la última tanda
+provienen de catálogos más recientes (GWTC-4.0/4.1/5.0, campaña de
+observación O4), que podrían incluir sistemáticamente eventos de
+menor SNR, mayor distancia, o rangos de masa distintos a los del
+catálogo original GWTC-1 (con el que se diseñaron y calibraron las
+features). Antes de seguir ampliando el dataset, sería más informativo
+verificar si los eventos añadidos recientemente tienen SNR
+sistemáticamente más bajo que los originales — separando el efecto
+"más datos" del efecto "datos más difíciles".
