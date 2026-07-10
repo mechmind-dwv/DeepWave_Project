@@ -666,3 +666,22 @@ fue diseñado y calibrado, y que su degradación en SNR bajo es
 esperada, no un fallo de diseño. Esta es también la práctica estándar
 en la literatura de detección de LIGO: el rendimiento siempre se
 reporta como función del SNR, nunca como un número único.
+
+## Confirmación de estabilidad: AUC condicionado por SNR se mantiene con más datos
+
+Al ampliar el dataset de 107 a 116 eventos (+9), se repitió el AUC
+condicionado por SNR:
+
+| | n=107 | n=116 | Cambio |
+|---|---|---|---|
+| SNR alto | 0.757 | 0.765 | +0.008 |
+| SNR bajo | 0.590 | 0.602 | +0.012 |
+
+**Confirmación metodológica clave:** el AUC condicionado por SNR
+apenas se mueve al añadir más datos (variación <1.2 puntos
+porcentuales), mientras que el AUC agregado sin condicionar había
+variado más de 7 puntos entre n=75 y n=107 por el simple cambio en la
+proporción de eventos de alto/bajo SNR en la muestra. Esto confirma
+que la métrica correcta y estable para reportar el rendimiento de
+DeepWave es el AUC condicionado por SNR, no un número agregado único
+— práctica consistente con los estándares de reporte de LIGO/Virgo.
