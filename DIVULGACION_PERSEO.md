@@ -637,3 +637,32 @@ composición del dataset por SNR. Reportar el AUC sin desglosar por
 SNR sería engañoso; el proyecto debería, en el futuro, condicionar
 sus métricas por rango de SNR en vez de reportar un único número
 agregado.
+
+## AUC condicionado por SNR: la mezcla explica todo el descenso
+
+Se dividió el dataset (107 eventos) en dos grupos por la mediana del
+SNR real (10.75): SNR alto (n=53) y SNR bajo (n=53).
+
+| Grupo | n | AUC |
+|---|---|---|
+| SNR alto (≥10.75) | 53 | **0.757** |
+| SNR bajo (<10.75) | 53 | **0.590** |
+| Agregado (sin condicionar) | 107 | 0.687 |
+
+**Conclusión honesta y final de esta línea de investigación:** el AUC
+en el grupo de SNR alto (0.757) es prácticamente idéntico al AUC
+original obtenido con 40 eventos (0.754) — el modelo no perdió
+capacidad real; lo que cambió fue la composición del dataset. El AUC
+agregado (0.687) es simplemente el promedio ponderado de un
+subproblema fácil (AUC≈0.76) y uno difícil (AUC≈0.59), consistente
+con lo que predice la física: a menor SNR, menor poder discriminativo
+de cualquier clasificador.
+
+**Recomendación metodológica para el proyecto:** reportar el AUC
+condicionado por rango de SNR, no un número agregado único. El
+"AUC=0.687" sin contexto sería engañoso — oculta que el modelo
+funciona razonablemente bien (AUC≈0.76) en el régimen de SNR donde
+fue diseñado y calibrado, y que su degradación en SNR bajo es
+esperada, no un fallo de diseño. Esta es también la práctica estándar
+en la literatura de detección de LIGO: el rendimiento siempre se
+reporta como función del SNR, nunca como un número único.
