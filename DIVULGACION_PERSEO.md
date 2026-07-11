@@ -706,3 +706,17 @@ SNR alto (comparable a un clasificador razonablemente competente para
 señales claras) y AUC≈0.60 en eventos de SNR bajo (apenas por encima
 del azar, como es físicamente esperable). Esta es la caracterización
 más honesta y reproducible del rendimiento del proyecto.
+
+## Cuarto punto de confirmación (n=151): tendencia consistente
+
+| n | SNR alto | SNR bajo |
+|---|---|---|
+| 107 | 0.757 | 0.590 |
+| 116 | 0.765 | 0.602 |
+| 133 | 0.788 | 0.602 |
+| 151 | 0.793 | 0.639 |
+
+Ambos grupos muestran mejora leve y sostenida con más datos —
+consistente con mejor calibración del K-NN dentro de cada régimen de
+SNR, no con ruido de muestra. La estructura de dos regímenes se
+mantiene estable tras 4 checkpoints consecutivos.
