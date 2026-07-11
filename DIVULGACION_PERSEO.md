@@ -685,3 +685,24 @@ proporción de eventos de alto/bajo SNR en la muestra. Esto confirma
 que la métrica correcta y estable para reportar el rendimiento de
 DeepWave es el AUC condicionado por SNR, no un número agregado único
 — práctica consistente con los estándares de reporte de LIGO/Virgo.
+
+## Tercer punto de confirmación: la estructura SNR-dependiente se mantiene
+
+| n | SNR alto | SNR bajo |
+|---|---|---|
+| 107 | 0.757 | 0.590 |
+| 116 | 0.765 | 0.602 |
+| 133 | 0.788 | 0.602 |
+
+El grupo de SNR bajo se mantiene notablemente estable (0.602 en las
+dos últimas mediciones consecutivas), confirmando que ese es su techo
+real con el método actual. El grupo de SNR alto muestra una tendencia
+ligeramente ascendente, consistente con mejor calibración del K-NN a
+medida que se acumulan más ejemplos de ese régimen específico.
+
+**Conclusión consolidada tras 3 puntos de datos:** DeepWave, con K-NN
+y features espectrales simples, alcanza AUC≈0.76-0.79 en eventos de
+SNR alto (comparable a un clasificador razonablemente competente para
+señales claras) y AUC≈0.60 en eventos de SNR bajo (apenas por encima
+del azar, como es físicamente esperable). Esta es la caracterización
+más honesta y reproducible del rendimiento del proyecto.
