@@ -122,6 +122,14 @@ def ampliar_dataset(nuevos_eventos):
             fallidos += 1
             print(f"  ❌ Error: {e}")
 
+        # Guardado incremental cada 5 eventos: si la sesión se corta,
+        # como máximo se pierden 4 eventos ya procesados, no todos.
+        if i % 5 == 0:
+            np.save(ruta_pos, np.array(positivos))
+            np.save(ruta_neg, np.array(negativos))
+            guardar_registro(procesados, excluidos)
+            print(f"  💾 Guardado incremental ({len(positivos)} positivos hasta ahora)")
+
     np.save(ruta_pos, np.array(positivos))
     np.save(ruta_neg, np.array(negativos))
     guardar_registro(procesados, excluidos)

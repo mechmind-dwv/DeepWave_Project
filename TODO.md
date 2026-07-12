@@ -1,118 +1,107 @@
-# 📋 DeepWave — Pendientes (actualizado 5 julio 2026)
+# 📋 DeepWave — Pendientes (actualizado 10 julio 2026)
 
-## 🟡 Prioridad media
+## 🎯 Objetivo actual: ampliar dataset real a mínimo 350 positivos
 
-- [x] ~~Ampliar la validación a más eventos reales de GWOSC~~ — **SUPERADO**:
-      se amplió a 40 eventos reales (GWTC-1 completo + 29 de GWTC-2.1),
-      no solo GW170814/GW190521. `construir_dataset_real.py` generaliza
-      la extracción de negativos por GPS time para cualquier evento.
-      Ver rama `feature/mlp-classifier`.
-- [x] ~~Curva ROC/AUC real~~ — **COMPLETADO**: AUC=0.754 sobre 40
-      eventos reales (leave-one-out, score continuo K=15). Gráfico en
-      `docs/curva_roc_deepwave.png`. Punto de operación óptimo
-      identificado (umbral 0.4 → TPR=60%, FPR=7.5%).
-- [x] ~~Entrenar la CNN real en Google Colab~~ — **COMPLETADO, resultado
-      negativo honesto**: k-fold da 67.5%±1.7%, pero la matriz de
-      confusión revela Recall+=25% (vs 67.5% del K-NN). Con solo 120
-      muestras, la CNN no supera al K-NN con features artesanales.
-      Documentado en DIVULGACION_PERSEO.md. NO se implementó inferencia
-      en Termux (tflite-runtime no tiene wheel; no vale la pena
-      reconstruir el forward-pass a mano para un modelo que no gana).
+**Estado:** 214/350 eventos reales (61%)
 
+**Lección operativa importante:** cuando una descarga falla por
+`truncated file`, el archivo `.hdf5` corrupto queda en
+`data/eventos_reales/` y el script lo reutiliza sin volver a
+descargar — hay que borrarlo EXPLÍCITAMENTE (`rm -f ruta/al/archivo`)
+antes de reintentar, o el reintento fallará de nuevo con el mismo
+error aunque la red ya esté bien.
+**Meta de largo plazo:** miles de eventos (nivel de robustez estadística real)
+**Método:** muestreo aleatorio reproducible (semilla fija) desde
+`data/candidatos_nuevos_catalogos.json` (245+ candidatos disponibles
+de GWTC-4.0/4.1/5.0/O4_Discovery_Papers), en bloques de 15 vía
+`construir_dataset_real.py` (con guardado incremental cada 5 eventos
+— corregido el 10 julio tras detectar pérdida de progreso en tandas
+grandes sin guardado parcial).
 
-## 🔬 Cadena de experimentos de features (7-8 julio 2026)
+### Progreso de la curva de aprendizaje (AUC condicionado por SNR)
 
-- [x] Análisis de importancia de features: `pico_max` (+0.569),
-      `energia_media` (+0.348), `energia_baja` (+0.308) correlacionan
-      bien; `entropia_espectral`, `varianza`, `pendiente`, `num_picos`
-      son prácticamente ruido (|corr| < 0.11)
-- [x] v2 (8 features sin seleccionar): Recall+ máx 57.5% — PEOR que v1
-- [x] v3 (4 features seleccionadas por correlación): Recall+ máx 60.0% — 
-      sigue sin superar v1 (67.5%)
-- [x] **Conclusión con evidencia sólida (3 experimentos consistentes):**
-      el cuello de botella NO es el diseño de features univariadas.
-      Apunta a que un solo detector (H1) no lleva suficiente
-      información, independientemente de cómo se procese.
+| n eventos | SNR alto | SNR bajo | Nota |
+|---|---|---|---|
+| 40 | 0.754 (agregado) | — | referencia inicial, sin condicionar |
+| 75 | 0.728 (agregado) | — | IC95%: 0.653–0.797 |
+| 107 | 0.757 | 0.590 | primera vez condicionado por SNR |
+| 116 | 0.765 | 0.602 | confirmación 1 |
+| 133 | 0.788 | 0.602 | confirmación 2 (SNR bajo estable) |
 
-### Próximo paso justificado: L1 como segundo detector
-- [ ] Verificar disponibilidad de L1 para los 40 eventos ya procesados
-- [ ] Generalizar `construir_dataset_real.py` para descargar y whitening
-      de H1+L1 en paralelo
-- [ ] Nueva feature: correlación cruzada H1-L1 en la ventana de 1s
-      (esto es, aproximadamente, lo que LIGO usa para confirmar
-      coincidencia real — la pieza que nos falta)
-- [ ] Repetir leave-one-out con features H1+L1 combinadas vs. solo H1
+**Hallazgo consolidado:** el rendimiento depende fuertemente de la
+composición del dataset por SNR (p=0.0288, Mann-Whitney U). El AUC
+agregado sin condicionar es engañoso. Reportar siempre condicionado
+por SNR (alto/bajo respecto a la mediana).
 
+### Próximos hitos de la curva (según vayamos ampliando)
+- [ ] n≈150: siguiente checkpoint natural
+- [ ] n≈200: repetir AUC condicionado + snapshot versionado
+- [ ] n≈250
+- [ ] n≈300
+- [ ] n≈350: objetivo mínimo de esta fase — evaluar si el patrón
+      SNR-alto/SNR-bajo sigue estable o si aparece algo nuevo con
+      una muestra de este tamaño
+- [ ] Considerar recalcular la correlación H1-L1 (v6) también en cada
+      checkpoint grande, para ver si la conclusión de "v1≈v6" se
+      mantiene con mucho más datos
 
-## 🏆 Clasificador de referencia consolidado (8 julio 2026)
+## 🟡 Prioridad media (heredado, aún vigente)
 
-- [x] v6 identificado como mejor resultado: 2 features selectas
-      (pico_max, energia_media) + correlación H1-L1 amplia → 
-      Recall+ = 70.3% (vs 67.5% de v1 original)
-- [x] `DeepWaveKNNReferencia`: clasificador dual, honesto sobre
-      disponibilidad de detectores — modo dual (H1+L1, más preciso)
-      degrada a modo simple (solo H1) sin inventar datos faltantes
-- [x] Entrenado con el 100% del dataset real (40 eventos simple,
-      37 eventos dual) — listo para uso, no solo validación
+- [x] Ampliar validación a más eventos — **en progreso activo**, ver
+      objetivo de 350 arriba
+- [x] Curva ROC/AUC real — completado, ahora condicionado por SNR
+- [x] Entrenar CNN real en Colab — completado, resultado negativo
+      (no supera al K-NN con dataset pequeño; revisar si vale la pena
+      reintentar una vez el dataset llegue a cientos/miles)
 
-### Pendiente para consolidar del todo (próxima sesión)
-- [ ] Validación k-fold del clasificador de referencia (no solo
-      leave-one-out) para estimar varianza del Recall+ con más rigor
-- [ ] Curva ROC/AUC específica para v6 (la actual, AUC=0.754, es de v1)
-- [ ] Conectar `dashboard.py` a este clasificador de referencia en vez
-      del K-NN simple actual (requiere generar señal L1 sintética o
-      permitir subir 2 señales cuando el usuario quiera modo dual)
-- [ ] Decidir: ¿fusionar esta rama completa a `desarrollo` ya, o seguir
-      un ciclo más de experimentos antes de integrar?
+## 🔬 Cadena de experimentos de features (7-8 julio 2026) — cerrada
 
-## 🟢 Prioridad baja / limpieza
+- [x] v1 (3 features originales): línea base
+- [x] v2 (8 sin seleccionar): peor que v1
+- [x] v3 (4 seleccionadas por correlación): sigue sin superar v1
+- [x] v4/v5 (+ correlación H1-L1): mejora marginal, no concluyente
+- [x] v6 (2 selectas + corr. H1-L1): mejor resultado con n=37, pero
+      **no se sostuvo** al ampliar a n=68 (v1≈v6, diferencia dentro
+      del margen de ruido) — ver sección de veredicto en
+      DIVULGACION_PERSEO.md
+- [x] **Conclusión:** con este tamaño de dataset, ninguna variante de
+      features supera de forma robusta a v1. El camino real de mejora
+      es el tamaño del dataset y el condicionamiento por SNR, no más
+      ingeniería de features.
 
-- [ ] Revisar el commit duplicado `0d4d7d0` / `3407589` en el historial
-      de `desarrollo` (mismo mensaje, sin impacto funcional, no urge).
-- [ ] Confirmar si aún hace falta `deepwave_datos_reales.py` (whitening
-      simplificado) ahora que existe `deepwave_whitening_real.py`
-      (whitening real por Welch) — posible duplicado a limpiar.
-- [ ] Considerar mover el token de `~/.git-credentials` a algo más
-      seguro que texto plano, o confirmar su fecha de expiración (90
-      días desde ~5 julio 2026).
+## 🏆 Infraestructura consolidada
 
-## ✅ Completado (5 julio 2026)
+- [x] `construir_dataset_real.py`: descarga, whitening real, detección
+      automática de NaN, **guardado incremental cada 5 eventos** (fix
+      10 julio)
+- [x] `versionar_dataset.py`: snapshots reproducibles en
+      `data/versions/dataset_v_n*/` con metadata (commit git, fecha)
+- [x] `auc_condicionado_por_snr.py`: métrica de referencia correcta
+      del proyecto
+- [x] `bootstrap_auc_v1.py`: intervalos de confianza (2000 remuestreos)
+- [x] Dashboard conectado al K-NN real (no modo demo)
+- [x] `DeepWaveKNNReferencia`: clasificador dual honesto (H1+L1 / solo H1)
 
-- [x] Dashboard conectado al clasificador K-NN real: ya no modo demo
-      aleatorio, sino clasificación real vía espectrograma STFT de una
-      señal generada a partir de los parámetros del usuario. Gráficos
-      de forma de onda y espectrograma también muestran la señal real
-      del último análisis, no una réplica cosmética.
+## 🟢 Prioridad baja / limpieza (pendiente, sin urgencia)
 
-- [x] Divulgación Perseo↔DeepWave documentada y fusionada a `main`
-- [x] SSH configurado correctamente (`~/.ssh/config`)
-- [x] Whitening real (PSD Welch + Butterworth) implementado y validado
+- [ ] Revisar commit duplicado `0d4d7d0`/`3407589` en `desarrollo`
+- [ ] Confirmar si `deepwave_datos_reales.py` es redundante con
+      `deepwave_whitening_real.py`
+- [ ] Revisar expiración del token en `~/.git-credentials`
+- [ ] Decidir cuándo fusionar `feature/mlp-classifier` a `desarrollo`
+      (probablemente al llegar a un hito grande: n=350, o antes si
+      se decide congelar el estado actual como release)
+
+## ✅ Hitos completados (resumen histórico)
+
+- [x] Divulgación Perseo↔DeepWave, fusionada a `main`
+- [x] Whitening real (Welch + Butterworth), validado contra GW150914
 - [x] K-NN nativo sin TensorFlow, funcional en Termux
-- [x] Validación con control negativo (1 positivo real + 2 negativos reales)
-- [x] 3 fixes de CodeRabbit aplicados (reset, POST en test_sequence, límite de historial)
-- [x] Manual de usuario reescrito sin métricas inventadas
-
-## 🔬 Rama feature/mlp-classifier (5-6 julio 2026)
-
-- [x] MLP con espectrograma completo: **descartado**, falló control
-      negativo real (documentado en DIVULGACION_PERSEO.md)
-- [x] Dataset 100% real construido: 40 eventos GWTC-1/GWTC-2.1 +
-      80 negativos, sin síntesis (GW190425 excluido por 34% NaN)
-- [x] K-NN entrenado con datos 100% reales, validación leave-one-out
-      en 3 escalas (11→25→40 eventos)
-- [x] Hallazgo documentado: meseta de Recall+ (~68%) al pasar de 25
-      a 40 eventos — el cuello de botella pasó de "faltan datos" a
-      "faltan mejores features"
-
-### Próximos pasos concretos para esta rama
-- [ ] Enriquecer features: probar añadir más estadísticos del
-      espectrograma (varianza, entropía espectral, número de picos)
-      en vez de solo las 3 actuales (energía baja, pendiente, pico)
-- [ ] Considerar coeficientes wavelet como alternativa a STFT simple
-- [ ] Si las features mejoradas no rompen la meseta, sería evidencia
-      de que hace falta un modelo más expresivo (red neuronal simple
-      bien regularizada, no el MLP que sobreajustó) entrenado con
-      más datos (80-100 eventos de GWTC-3 completo)
-- [ ] Decidir si esta rama se fusiona a `desarrollo` tal cual (como
-      "K-NN validado con datos reales, con limitaciones documentadas")
-      o si espera a la siguiente iteración de features
+- [x] MLP descartado (falló control negativo real)
+- [x] Dataset real ampliado en 5 tandas: 11→25→40→75→107→116→133 eventos
+- [x] Descubrimiento y confirmación (3 puntos) de la estructura AUC
+      condicionada por SNR
+- [x] IC bootstrap implementado
+- [x] Revisión metodológica externa incorporada (matices sobre
+      alcance de conclusiones, lenguaje técnico en README, autoría
+      transparente)
