@@ -2,7 +2,14 @@
 
 ## 🎯 Objetivo actual: ampliar dataset real a mínimo 350 positivos
 
-**Estado:** 133/350 eventos reales (38%)
+**Estado:** 214/350 eventos reales (61%)
+
+**Lección operativa importante:** cuando una descarga falla por
+`truncated file`, el archivo `.hdf5` corrupto queda en
+`data/eventos_reales/` y el script lo reutiliza sin volver a
+descargar — hay que borrarlo EXPLÍCITAMENTE (`rm -f ruta/al/archivo`)
+antes de reintentar, o el reintento fallará de nuevo con el mismo
+error aunque la red ya esté bien.
 **Meta de largo plazo:** miles de eventos (nivel de robustez estadística real)
 **Método:** muestreo aleatorio reproducible (semilla fija) desde
 `data/candidatos_nuevos_catalogos.json` (245+ candidatos disponibles
