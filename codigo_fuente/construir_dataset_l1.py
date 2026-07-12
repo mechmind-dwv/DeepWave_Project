@@ -23,8 +23,14 @@ DATASET_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 FS_OBJETIVO = 2048
 
 def descargar_evento(nombre_evento, detector):
+    """Descarga el HDF5 del detector solicitado. Lanza FileNotFoundError
+    (en vez de IndexError) si GWOSC no publica ese detector para este
+    evento — mismo espíritu que el manejo de NaN: fallar de forma
+    explícita y recuperable, no silenciosa ni con un crash genérico."""
     os.makedirs(DATA_DIR, exist_ok=True)
     urls = get_event_urls(nombre_evento, detector=detector)
+    if not urls:
+        raise FileNotFoundError(f"No existe archivo {detector} para {nombre_evento} en GWOSC")
     url = urls[0]
     nombre_archivo = os.path.join(DATA_DIR, f"{nombre_evento}_{detector}.hdf5")
     if not os.path.exists(nombre_archivo):
