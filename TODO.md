@@ -84,6 +84,12 @@ por SNR (alto/bajo respecto a la mediana).
 
 ## 🟢 Prioridad baja / limpieza (pendiente, sin urgencia)
 
+- [ ] Mejoras pendientes en construir_dataset_l1.py (retomar cuando se
+      recalcule correlación H1-L1 sobre el dataset ampliado a 350):
+      guardado incremental cada 10 eventos, informe JSON de eventos
+      omitidos con causa (NaN/detector ausente/error red), barra de
+      progreso. Ya aplicado: manejo explícito de detector ausente.
+
 - [ ] Migrar dataset_real_*.npy a Git LFS/DVC (sugerencia CodeRabbit) —
       no urgente, evaluar tras alcanzar n=350 y cerrar esta campaña.
 
