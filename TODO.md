@@ -84,6 +84,9 @@ por SNR (alto/bajo respecto a la mediana).
 
 ## 🟢 Prioridad baja / limpieza (pendiente, sin urgencia)
 
+- [ ] Migrar dataset_real_*.npy a Git LFS/DVC (sugerencia CodeRabbit) —
+      no urgente, evaluar tras alcanzar n=350 y cerrar esta campaña.
+
 - [ ] Revisar commit duplicado `0d4d7d0`/`3407589` en `desarrollo`
 - [ ] Confirmar si `deepwave_datos_reales.py` es redundante con
       `deepwave_whitening_real.py`
