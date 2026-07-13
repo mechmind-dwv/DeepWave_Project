@@ -1,116 +1,97 @@
-# 📋 DeepWave — Pendientes (actualizado 10 julio 2026)
+# 📋 DeepWave — Pendientes (actualizado 12 julio 2026)
 
-## 🎯 Objetivo actual: ampliar dataset real a mínimo 350 positivos
+## 🏆 CAMPAÑA COMPLETADA: Dataset de 350 eventos reales
 
-**Estado:** 214/350 eventos reales (61%)
+- [x] **Objetivo alcanzado:** 350 eventos positivos + 700 negativos,
+      100% datos reales de LIGO/Virgo (GWOSC), sin ninguna síntesis.
+      Catálogos usados: GWTC-1, GWTC-2, GWTC-2.1, GWTC-3, GWTC-4.0,
+      GWTC-4.1, GWTC-5.0, O3_Discovery_Papers, O4_Discovery_Papers,
+      IAS-O3a, GWTC-1/2.1/3-marginal.
+- [x] Sistema de versionado de datasets (`data/versions/dataset_v_n*/`)
+      con 8 snapshots reproducibles: n=107, 116, 133, 151, 201, 214,
+      290, 350.
+- [x] Guardado incremental cada 5 eventos en `construir_dataset_real.py`
+      — corrección crítica tras detectar pérdida de progreso en
+      tandas grandes sin protección parcial.
+- [x] `descargar_evento()` en `construir_dataset_l1.py` maneja
+      detector ausente con `FileNotFoundError` explícito.
 
-**Lección operativa importante:** cuando una descarga falla por
-`truncated file`, el archivo `.hdf5` corrupto queda en
-`data/eventos_reales/` y el script lo reutiliza sin volver a
-descargar — hay que borrarlo EXPLÍCITAMENTE (`rm -f ruta/al/archivo`)
-antes de reintentar, o el reintento fallará de nuevo con el mismo
-error aunque la red ya esté bien.
-**Meta de largo plazo:** miles de eventos (nivel de robustez estadística real)
-**Método:** muestreo aleatorio reproducible (semilla fija) desde
-`data/candidatos_nuevos_catalogos.json` (245+ candidatos disponibles
-de GWTC-4.0/4.1/5.0/O4_Discovery_Papers), en bloques de 15 vía
-`construir_dataset_real.py` (con guardado incremental cada 5 eventos
-— corregido el 10 julio tras detectar pérdida de progreso en tandas
-grandes sin guardado parcial).
+### Resultados finales de la campaña
 
-### Progreso de la curva de aprendizaje (AUC condicionado por SNR)
+| Métrica | Valor |
+|---|---|
+| AUC agregado (bootstrap, 2000 remuestreos) | 0.735 (IC95%: 0.705–0.764) |
+| AUC condicionado SNR alto (n=176) | 0.797 |
+| AUC condicionado SNR bajo (n=172) | 0.662 |
+| Precisión leave-one-out global | 68.5% (719/1050) |
 
-| n eventos | SNR alto | SNR bajo | Nota |
-|---|---|---|---|
-| 40 | 0.754 (agregado) | — | referencia inicial, sin condicionar |
-| 75 | 0.728 (agregado) | — | IC95%: 0.653–0.797 |
-| 107 | 0.757 | 0.590 | primera vez condicionado por SNR |
-| 116 | 0.765 | 0.602 | confirmación 1 |
-| 133 | 0.788 | 0.602 | confirmación 2 (SNR bajo estable) |
+**Curva completa de AUC condicionado por SNR (8 puntos):**
+107→0.757/0.590 · 116→0.765/0.602 · 133→0.788/0.602 · 151→0.793/0.639
+· 201→0.772/0.637 · 214→0.771/0.610 · 290→0.794/0.679 · 350→0.797/0.662
 
-**Hallazgo consolidado:** el rendimiento depende fuertemente de la
-composición del dataset por SNR (p=0.0288, Mann-Whitney U). El AUC
-agregado sin condicionar es engañoso. Reportar siempre condicionado
-por SNR (alto/bajo respecto a la mediana).
+**Conclusión:** la estructura de dos regímenes (SNR alto≈0.80,
+SNR bajo≈0.66) es estable y reproducible. Este es el techo real del
+método actual (K-NN, 3 features espectrales, un solo detector H1).
 
-### Próximos hitos de la curva (según vayamos ampliando)
-- [ ] n≈150: siguiente checkpoint natural
-- [ ] n≈200: repetir AUC condicionado + snapshot versionado
-- [ ] n≈250
-- [ ] n≈300
-- [ ] n≈350: objetivo mínimo de esta fase — evaluar si el patrón
-      SNR-alto/SNR-bajo sigue estable o si aparece algo nuevo con
-      una muestra de este tamaño
-- [ ] Considerar recalcular la correlación H1-L1 (v6) también en cada
-      checkpoint grande, para ver si la conclusión de "v1≈v6" se
-      mantiene con mucho más datos
+## 🎯 Próximos pasos (decisión pendiente)
 
-## 🟡 Prioridad media (heredado, aún vigente)
+- [ ] **Decidir dirección:** ¿fusionar esta rama a `desarrollo` ahora
+      como release consolidado, o intentar el salto metodológico
+      (matched filtering, o CNN reentrenada con 350 eventos en vez
+      de los 120 con los que falló antes) antes de fusionar?
+- [ ] Si se reintenta la CNN: ahora hay ~3x más datos que cuando
+      falló (Recall+=25% con n=120) — vale la pena repetir el
+      experimento en Colab con el dataset completo de 350.
+- [ ] Recalcular correlación H1-L1 (v6) sobre el dataset completo de
+      350 — la última vez (n=68) v1≈v6, pero con casi 5x más datos
+      podría cambiar la conclusión.
+- [ ] Considerar publicar el proyecto/hallazgos en algún formato
+      compartible (blog post, paper corto, o simplemente el repo
+      bien documentado tal cual está).
 
-- [x] Ampliar validación a más eventos — **en progreso activo**, ver
-      objetivo de 350 arriba
-- [x] Curva ROC/AUC real — completado, ahora condicionado por SNR
-- [x] Entrenar CNN real en Colab — completado, resultado negativo
-      (no supera al K-NN con dataset pequeño; revisar si vale la pena
-      reintentar una vez el dataset llegue a cientos/miles)
+## 🟡 Infraestructura y limpieza pendiente (sin urgencia)
 
-## 🔬 Cadena de experimentos de features (7-8 julio 2026) — cerrada
-
-- [x] v1 (3 features originales): línea base
-- [x] v2 (8 sin seleccionar): peor que v1
-- [x] v3 (4 seleccionadas por correlación): sigue sin superar v1
-- [x] v4/v5 (+ correlación H1-L1): mejora marginal, no concluyente
-- [x] v6 (2 selectas + corr. H1-L1): mejor resultado con n=37, pero
-      **no se sostuvo** al ampliar a n=68 (v1≈v6, diferencia dentro
-      del margen de ruido) — ver sección de veredicto en
-      DIVULGACION_PERSEO.md
-- [x] **Conclusión:** con este tamaño de dataset, ninguna variante de
-      features supera de forma robusta a v1. El camino real de mejora
-      es el tamaño del dataset y el condicionamiento por SNR, no más
-      ingeniería de features.
-
-## 🏆 Infraestructura consolidada
-
-- [x] `construir_dataset_real.py`: descarga, whitening real, detección
-      automática de NaN, **guardado incremental cada 5 eventos** (fix
-      10 julio)
-- [x] `versionar_dataset.py`: snapshots reproducibles en
-      `data/versions/dataset_v_n*/` con metadata (commit git, fecha)
-- [x] `auc_condicionado_por_snr.py`: métrica de referencia correcta
-      del proyecto
-- [x] `bootstrap_auc_v1.py`: intervalos de confianza (2000 remuestreos)
-- [x] Dashboard conectado al K-NN real (no modo demo)
-- [x] `DeepWaveKNNReferencia`: clasificador dual honesto (H1+L1 / solo H1)
-
-## 🟢 Prioridad baja / limpieza (pendiente, sin urgencia)
-
-- [ ] Mejoras pendientes en construir_dataset_l1.py (retomar cuando se
-      recalcule correlación H1-L1 sobre el dataset ampliado a 350):
-      guardado incremental cada 10 eventos, informe JSON de eventos
-      omitidos con causa (NaN/detector ausente/error red), barra de
-      progreso. Ya aplicado: manejo explícito de detector ausente.
-
-- [ ] Migrar dataset_real_*.npy a Git LFS/DVC (sugerencia CodeRabbit) —
-      no urgente, evaluar tras alcanzar n=350 y cerrar esta campaña.
-
-- [ ] Revisar commit duplicado `0d4d7d0`/`3407589` en `desarrollo`
+- [ ] Migrar `dataset_real_*.npy` a Git LFS/DVC (sugerencia CodeRabbit)
+      — evaluar ahora que la campaña de descarga terminó.
+- [ ] Arreglar el import de `deepwave_knn_real.py`: actualmente solo
+      funciona como paquete (`from codigo_fuente.X import`), rompe la
+      ejecución directa de scripts como `entrenar_knn_real.py` desde
+      dentro de `codigo_fuente/`. Usar try/except para soportar ambos
+      contextos.
+- [ ] Mejoras pendientes en `construir_dataset_l1.py`: guardado
+      incremental cada 10 eventos, informe JSON de eventos omitidos
+      con causa, barra de progreso.
+- [ ] Revisar commit duplicado `0d4d7d0`/`3407589` en `desarrollo`.
 - [ ] Confirmar si `deepwave_datos_reales.py` es redundante con
-      `deepwave_whitening_real.py`
-- [ ] Revisar expiración del token en `~/.git-credentials`
-- [ ] Decidir cuándo fusionar `feature/mlp-classifier` a `desarrollo`
-      (probablemente al llegar a un hito grande: n=350, o antes si
-      se decide congelar el estado actual como release)
+      `deepwave_whitening_real.py`.
+- [ ] Revisar expiración del token en `~/.git-credentials`.
+- [ ] Conectar `dashboard.py` al clasificador entrenado con 350
+      eventos (actualmente usa el K-NN con datos sintéticos para la
+      demo interactiva — separar claramente "demo con sliders" de
+      "resultado científico con datos reales" en la interfaz).
 
-## ✅ Hitos completados (resumen histórico)
+## 🔬 Historial de hallazgos clave (resumen)
+
+- [x] MLP con espectrograma completo: descartado (falló control
+      negativo real)
+- [x] Features v2/v3 (más features, o seleccionadas por correlación
+      individual): no superaron a v1 con datasets pequeños
+- [x] v6 (features selectas + correlación H1-L1): mejor con n=37,
+      pero convergió con v1 al ampliar a n=68 — pendiente reintentar
+      con n=350
+- [x] CNN (Colab, n=120): Recall+=25%, muy por debajo del K-NN —
+      pendiente reintentar con n=350
+- [x] Descubrimiento del efecto SNR: el AUC agregado dependía
+      fuertemente de la composición SNR de la muestra, no era una
+      propiedad estable del modelo — resuelto reportando AUC
+      condicionado por SNR
+
+## ✅ Hitos históricos completados
 
 - [x] Divulgación Perseo↔DeepWave, fusionada a `main`
 - [x] Whitening real (Welch + Butterworth), validado contra GW150914
 - [x] K-NN nativo sin TensorFlow, funcional en Termux
-- [x] MLP descartado (falló control negativo real)
-- [x] Dataset real ampliado en 5 tandas: 11→25→40→75→107→116→133 eventos
-- [x] Descubrimiento y confirmación (3 puntos) de la estructura AUC
-      condicionada por SNR
-- [x] IC bootstrap implementado
-- [x] Revisión metodológica externa incorporada (matices sobre
-      alcance de conclusiones, lenguaje técnico en README, autoría
-      transparente)
+- [x] Dashboard conectado al K-NN real (no modo demo aleatorio)
+- [x] Revisión metodológica externa incorporada (matices de alcance,
+      lenguaje técnico en README, autoría transparente)
+- [x] **Campaña de 350 eventos reales completada (12 julio 2026)**
