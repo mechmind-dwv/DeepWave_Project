@@ -754,3 +754,43 @@ dentro del rango ya observado. El grupo de SNR bajo alcanza su mejor
 valor (0.679), sugiriendo que ese régimen —el más difícil— se
 beneficia proporcionalmente más de tener más datos de entrenamiento,
 como es razonable esperar para el subproblema más exigente.
+
+## 🏆 CIERRE DE CAMPAÑA: dataset completo de 350 eventos reales alcanzado
+
+Tras 8 puntos consecutivos de ampliación del dataset (de 40 a 350
+eventos reales confirmados de LIGO/Virgo, catálogos GWTC-1 a GWTC-5,
+IAS-O3a, y catálogos marginales), se consolidan los resultados finales:
+
+**Curva completa de AUC condicionado por SNR:**
+
+| n | SNR alto | SNR bajo |
+|---|---|---|
+| 107 | 0.757 | 0.590 |
+| 116 | 0.765 | 0.602 |
+| 133 | 0.788 | 0.602 |
+| 151 | 0.793 | 0.639 |
+| 201 | 0.772 | 0.637 |
+| 214 | 0.771 | 0.610 |
+| 290 | 0.794 | 0.679 |
+| **350** | **0.797** | **0.662** |
+
+**Resultados finales, dataset completo (350+700):**
+- AUC agregado con bootstrap: **0.735 (IC95%: 0.705–0.764)**, std=0.015
+  — el intervalo más estrecho de toda la campaña, confirmando que la
+  incertidumbre estadística se redujo sustancialmente con más datos.
+- AUC condicionado por SNR: alto=0.797, bajo=0.662 — la estructura de
+  dos regímenes se mantiene estable y bien definida tras 8 checkpoints.
+- Precisión leave-one-out global: 68.5% (719/1050 muestras).
+
+**Conclusión honesta final de esta fase del proyecto:** DeepWave, con
+un clasificador K-NN de 3 features espectrales simples sobre datos
+reales de LIGO/Virgo, alcanza un rendimiento estable y reproducible
+de AUC≈0.80 en eventos de alto SNR y AUC≈0.66 en eventos de bajo SNR.
+Este es el techo real y bien caracterizado del método actual. Superar
+esta cifra de forma sustancial requeriría un salto metodológico
+(matched filtering, o un modelo más expresivo entrenado con miles de
+eventos), no más ajuste incremental sobre el enfoque actual.
+
+Esta campaña se realizó en su totalidad desde un dispositivo Android
+(Termux), sin GPU ni conexión de datos estable, con guardado
+incremental como salvaguarda ante caídas de red frecuentes.
