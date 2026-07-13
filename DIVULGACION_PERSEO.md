@@ -736,3 +736,21 @@ Tras 6 checkpoints consecutivos, la estructura converge con
 oscilaciones cada vez menores: SNR alto ≈0.77-0.79, SNR bajo ≈0.60-0.64.
 Esto ya no es una hipótesis — es un resultado reproducible y estable
 del método (K-NN, 3 features espectrales) sobre datos reales de LIGO.
+
+## Séptimo punto de confirmación (n=290): régimen de SNR bajo mejora con más muestra
+
+| n | SNR alto | SNR bajo |
+|---|---|---|
+| 107 | 0.757 | 0.590 |
+| 116 | 0.765 | 0.602 |
+| 133 | 0.788 | 0.602 |
+| 151 | 0.793 | 0.639 |
+| 201 | 0.772 | 0.637 |
+| 214 | 0.771 | 0.610 |
+| 290 | 0.794 | 0.679 |
+
+Con 145 muestras por grupo, ambos regímenes se mantienen estables
+dentro del rango ya observado. El grupo de SNR bajo alcanza su mejor
+valor (0.679), sugiriendo que ese régimen —el más difícil— se
+beneficia proporcionalmente más de tener más datos de entrenamiento,
+como es razonable esperar para el subproblema más exigente.
