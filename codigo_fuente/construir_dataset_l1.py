@@ -112,6 +112,7 @@ if __name__ == "__main__":
 
     resultados_corr_positivo = []
     resultados_corr_negativo = []
+    eventos_con_correlacion = []  # nombres exactos, en orden — evita desalineación
     exitosos, fallidos = 0, 0
 
     for i, evento in enumerate(eventos, 1):
@@ -121,16 +122,30 @@ if __name__ == "__main__":
             resultados_corr_positivo.append(r["positivo"][2])
             resultados_corr_negativo.append(r["negativo1"][2])
             resultados_corr_negativo.append(r["negativo2"][2])
+            eventos_con_correlacion.append(evento)
             exitosos += 1
             print(f"  ✅ Correlación H1-L1 (evento): {r['positivo'][2]:.3f}")
         except Exception as e:
             fallidos += 1
             print(f"  ❌ Error: {e}")
 
+        # Guardado incremental cada 10 eventos: protege el progreso si
+        # la sesión se corta a mitad de una tanda larga.
+        if i % 10 == 0:
+            np.save(os.path.join(DATASET_DIR, "correlacion_hl_positivos.npy"), np.array(resultados_corr_positivo))
+            np.save(os.path.join(DATASET_DIR, "correlacion_hl_negativos.npy"), np.array(resultados_corr_negativo))
+            with open(os.path.join(DATASET_DIR, "eventos_con_correlacion_hl.json"), "w") as f:
+                json.dump(eventos_con_correlacion, f, indent=2)
+            print(f"  💾 Guardado incremental ({len(eventos_con_correlacion)} eventos con correlación hasta ahora)")
+
     print(f"\n📊 Procesados: {exitosos}, fallidos: {fallidos}")
-    print(f"\nCorrelación H1-L1 en EVENTOS reales: media={np.mean(resultados_corr_positivo):.3f}, std={np.std(resultados_corr_positivo):.3f}")
-    print(f"Correlación H1-L1 en RUIDO: media={np.mean(resultados_corr_negativo):.3f}, std={np.std(resultados_corr_negativo):.3f}")
+    if resultados_corr_positivo:
+        print(f"\nCorrelación H1-L1 en EVENTOS reales: media={np.mean(resultados_corr_positivo):.3f}, std={np.std(resultados_corr_positivo):.3f}")
+        print(f"Correlación H1-L1 en RUIDO: media={np.mean(resultados_corr_negativo):.3f}, std={np.std(resultados_corr_negativo):.3f}")
 
     np.save(os.path.join(DATASET_DIR, "correlacion_hl_positivos.npy"), np.array(resultados_corr_positivo))
     np.save(os.path.join(DATASET_DIR, "correlacion_hl_negativos.npy"), np.array(resultados_corr_negativo))
+    with open(os.path.join(DATASET_DIR, "eventos_con_correlacion_hl.json"), "w") as f:
+        json.dump(eventos_con_correlacion, f, indent=2)
     print("\n💾 Correlaciones guardadas en data/correlacion_hl_*.npy")
+    print(f"💾 Lista de eventos alineados guardada en data/eventos_con_correlacion_hl.json")
