@@ -794,3 +794,25 @@ eventos), no más ajuste incremental sobre el enfoque actual.
 Esta campaña se realizó en su totalidad desde un dispositivo Android
 (Termux), sin GPU ni conexión de datos estable, con guardado
 incremental como salvaguarda ante caídas de red frecuentes.
+
+## v6 sobre 150 eventos (más del doble que la validación anterior de n=68)
+
+Con la lista de alineación real (`eventos_con_correlacion_hl.json`),
+se repitió la comparación v1 vs v6 sobre 150 eventos con H1+L1
+disponible (de los 350 totales; la descarga de L1 se interrumpió por
+caída de conexión antes de completar el resto):
+
+| Config | v1 Recall+ | v6 Recall+ |
+|---|---|---|
+| K=1, sin balancear | 39.3% | 36.7% |
+| K=3, sin balancear | 40.0% | 31.3% |
+| K=1, balanceado | 53.3% | 56.0% |
+| K=3, balanceado | 58.0% | 54.7% |
+| K=5, balanceado | 56.0% | 58.0% |
+
+**Conclusión confirmada con muestra más grande:** v1 y v6 siguen
+estadísticamente indistinguibles — ninguna configuración muestra
+ventaja consistente para la correlación H1-L1. Esto refuerza, con el
+doble de datos que la validación anterior (n=68→n=150), la
+recomendación de mantener v1 (solo H1, más simple) como línea base
+del proyecto.
